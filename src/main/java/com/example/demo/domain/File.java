@@ -267,4 +267,13 @@ public class File implements Serializable {
     public void setObjectName(String objectName) {
         this.objectName = objectName == null ? null : objectName.trim();
     }
+
+	@Override
+	public String toString() {
+		return "File [id=" + id + ", parentId=" + parentId + ", name=" + name + ", type=" + type + ", creatorId="
+				+ creatorId + ", updateDay=" + updateDay + ", createDay=" + createDay + ", objectName=" + objectName
+				+ "]";
+	}
+    
+    
 }
