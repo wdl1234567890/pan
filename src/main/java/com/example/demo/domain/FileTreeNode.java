@@ -6,10 +6,10 @@ import java.util.Map;
 
 /**
  * 
- * @ClassName: FileTreeNode
- * @Description: 将从数据库读取出来的File类封装成多叉树节点
- * @author: fuling
- * @date: 2020年9月15日 下午8:25:47
+ * @ClassName FileTreeNode
+ * @Description 将从数据库读取出来的File类封装成多叉树节点
+ * @author fuling
+ * @date2020年9月15日 下午8:25:47
  */
 public class FileTreeNode {
 	private File file;
