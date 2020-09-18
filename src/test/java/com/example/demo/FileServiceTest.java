@@ -65,7 +65,7 @@ class FileServiceTest {
 	
 	@Test
 	void testGetFileListByParentId() {
-		List<File> files = fileService.getFileListByParentId(15, 1);
+		List<File> files = fileService.getFileListByParentId(0, 1);
 		System.out.println(files);
 	}
 

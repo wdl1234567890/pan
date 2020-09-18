@@ -331,7 +331,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByParentId" resultMap="BaseResultMap">
-  	select * from file where parent_id=#{parentId}
+  	select * from file where parent_id=#{parentId} and creator_id=#{userId}
   </select>
   <select id="getByNameAndParentId" resultMap="BaseResultMap">
   	select * from file where name=#{name} and parent_id=#{parentId}

@@ -65,7 +65,7 @@ public interface FileMapper {
      */
     File selectByPrimaryKey(Integer id);
     
-    List<File> selectByParentId(Integer parentId);
+    List<File> selectByParentId(@Param("parentId")Integer parentId, @Param("userId")Integer userId);
     
     List<File> getByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId);
     

@@ -279,7 +279,7 @@ public class FileServiceImpl implements FileService{
 		File file = checkArgs(Arrays.asList(parentId, userId), parentId, userId);
 		if(file.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件无法执行此操作！");
 		
-		List<File> files = fileMapper.selectByParentId(parentId);
+		List<File> files = fileMapper.selectByParentId(parentId, userId);
 		if(null == files || files.size() == 0) throw new RuntimeException("该文件夹为空！");
 		
 		return files;
