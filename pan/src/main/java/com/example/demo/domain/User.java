@@ -234,4 +234,11 @@ public class User implements Serializable {
     public void setLevel(Integer level) {
         this.level = level;
     }
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", department=" + department + ", name=" + name + ", pwd=" + pwd + ", mail=" + mail
+				+ ", phone=" + phone + ", level=" + level + "]";
+	}
+    
 }
