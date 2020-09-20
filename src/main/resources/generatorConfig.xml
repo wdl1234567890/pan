@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<!-- Generator 配置文件 -->
+<generatorConfiguration>
+
+    <properties resource="jdbc.properties"/>
+
+    <classPathEntry
+            location="C:\Users\LHG\.m2\repository\mysql\mysql-connector-java\5.1.8\mysql-connector-java-5.1.8.jar"/>
+
+    <context id="mybatisGenerator" targetRuntime="MyBatis3">
+        <!-- 生成的pojo，将implements Serializable-->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"></plugin>
+        <commentGenerator>
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+            <property name="suppressAllComments" value="false"/>
+        </commentGenerator>
+        <!-- 数据库链接URL、用户名、密码 -->
+        <jdbcConnection driverClass="${jdbc.driverClassName}"
+                        connectionURL="${jdbc.url}"
+                        userId="${jdbc.username}"
+                        password="${jdbc.password}">
+        </jdbcConnection>
+
+        <!-- 默认false，把JDBC DECIMAL 和 NUMERIC 类型解析为 Integer，为 true时把JDBC DECIMAL 和
+            NUMERIC 类型解析为java.math.BigDecimal -->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- targetProject:生成实体类的位置 -->
+        <javaModelGenerator targetPackage="com.example.demo.domain"
+                            targetProject="src\main\java">
+            <!-- enableSubPackages:是否让schema作为包的后缀 -->
+            <property name="enableSubPackages" value="false"/>
+            <!-- 从数据库返回的值被清理前后的空格 -->
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- targetProject:mapper映射文件生成的位置 -->
+        <sqlMapGenerator targetPackage="com.example.demo.mapper"
+                         targetProject="src\main\java">
+            <!-- enableSubPackages:是否让schema作为包的后缀 -->
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+        <!-- targetPackage：mapper接口生成的位置 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.example.demo.mapper"
+                             targetProject="src\main\java">
+            <!-- enableSubPackages:是否让schema作为包的后缀 -->
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+        <!-- 指定数据库表 -->
+        <!-- 如果要生成所有表，将tableName的属性修改为“%”即可 -->
+
+        <!-- 列出要生成代码的所有表，这里配置的是不生成Example文件  、domainObjectName="AccountInfo" 指定生成的类名-->
+
+               <!--enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" selectByExampleQueryId="false">-->
+        <table tableName="department">
+            <property name="useActualColumnNames" value="false"/>
+        </table>
+        <table tableName="file">
+            <property name="useActualColumnNames" value="false"/>
+        </table>
+        <table tableName="user">
+            <property name="useActualColumnNames" value="false"/>
+        </table>
+        <table tableName="authority">
+            <property name="useActualColumnNames" value="false"/>
+        </table>
+
+        <!--  <table tableName="account"></table> -->
+        <!--<table tableName="orders"></table>
+        <table tableName="orderdetail"></table>
+        <table tableName="user"></table>-->
+
+        <!-- 有些表的字段需要指定java类型
+         <table schema="" tableName="">
+            <columnOverride column="" javaType="" />
+        </table> -->
+    </context>
+</generatorConfiguration>
