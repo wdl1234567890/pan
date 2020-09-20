@@ -9,12 +9,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.domain.Authority;
 import com.example.demo.domain.File;
 import com.example.demo.domain.FileExample;
 import com.example.demo.domain.FileExample.Criteria;
 import com.example.demo.domain.FileTreeNode;
 import com.example.demo.enums.FileType;
+import com.example.demo.mapper.AuthorityMapper;
 import com.example.demo.mapper.FileMapper;
+import com.example.demo.service.AuthorityService;
 import com.example.demo.service.FileService;
 import com.example.demo.utils.FileTreeNodeUtils;
 import com.obs.services.ObsClient;
@@ -34,6 +37,9 @@ public class FileServiceImpl implements FileService{
 	@Autowired
 	private FileMapper fileMapper;
 	
+	@Autowired
+	private AuthorityService authorityService;
+	
 	@Value("${obs.config.maxLevel}")
 	private Integer maxLevel;
 	
@@ -48,11 +54,11 @@ public class FileServiceImpl implements FileService{
 	/**
 	 * 
 	 * @Title checkArgs
-	 * @Description 检查参数是否为空，检查文件是否存在，检查文件是否是属于指定用户的
+	 * @Description 检查参数是否为空，检查文件/文件夹是否存在，检查文件/文件夹是否是属于指定用户的
 	 * @param args 需要检测值是否为空的参数列表
-	 * @param fileId 需要检查文件是否存在的文件id，如果此项参数为空，就不对文件的存在性做检测以及文件与用户是否匹配的检测
-	 * @param userId 需要检测是否拥有fileId文件的用户id， 如果此项参数为空，就不对文件的存在性做检测以及文件与用户是否匹配的检测
-	 * @return 如果fileId不为空且userId不为空，并且三项检测都通过，则返回对应fileId的file;若fileId或userId任何一个为空，则返回null
+	 * @param fileId 文件/文件夹id，如果此项参数为空，就不对文件的存在性做检测
+	 * @param userId 用户id， 如果此项参数为空，就不做文件/文件夹与用户是否匹配的检测
+	 * @return 如果fileId不为空，并且检测都通过，则返回对应fileId的file;若fileId和userId都为空，则返回null，检测不通过则抛出异常
 	 * @throws RuntimeException
 	 */
 	private File checkArgs(List<Object> args, Integer fileId, Integer userId) {
@@ -64,10 +70,12 @@ public class FileServiceImpl implements FileService{
 		if(anyMatch)throw new RuntimeException("参数为空！");
 		
 		//文件存在性检测以及文件用户是否匹配的检测
-		if(null != fileId && null != userId) {
+		if(null != fileId) {
 			File file = fileMapper.selectByPrimaryKey(fileId);
 			if(null == file)throw new RuntimeException("文件/文件夹不存在！");
-			if(0 != fileId)if(file.getCreatorId() != userId)throw new RuntimeException("当前用户无权限操作");
+			if(0 != fileId && null != userId) {
+				if(file.getCreatorId() != userId)throw new RuntimeException("当前用户无权限操作");
+			}
 			return file;
 		}
 		return null;
@@ -275,7 +283,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public List<File> getFileListByParentId(Integer parentId, Integer userId) {
+	public List<File> getDirAndFileListByParentId(Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(parentId, userId), parentId, userId);
 		if(file.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件无法执行此操作！");
 		
@@ -286,7 +294,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public Map<String, File> getFileListByName(String name, Integer parentId, Integer userId) {
+	public Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(name,parentId, userId), parentId, userId);
 		if(file.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件无法执行此操作！");
 		
@@ -306,5 +314,25 @@ public class FileServiceImpl implements FileService{
 		String path = FileTreeNodeUtils.getPathById(fileTree, fileId);
 		return path;
 	}
+
+
+
+	@Override
+	public Map<File, Authority> getGroupDirAndFileListByParentId(Integer parentId, Integer userId) {
+		File file = checkArgs(Arrays.asList(parentId, userId), parentId, userId);
+		if(null == file || file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("该文件/文件夹不能能执行此操作1！");
+		
+		//TODO 检查userId是否有权限
+		
+		//如果parentId是根目录
+		if(0 == parentId) {
+			
+		}else {
+			
+		}
+		return null;
+	}
+
+	
 
 }

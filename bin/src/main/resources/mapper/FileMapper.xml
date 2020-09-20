@@ -345,8 +345,8 @@
   <select id="getByCreatorId" resultMap="BaseResultMap">
   	select * from file where creator_id=#{creatorId} or creator_id=-1
   </select>
-  <select id="getGroupFileAndDir" resultMap="BaseResultMap">
-  	select * from file where type=2 or type=3 or creator_id=-1
+  <select id="getByType" resultMap="BaseResultMap">
+  	select * from file where type=#{type}
   </select>
   <delete id="batchDeleteById">
   	delete from file where id in

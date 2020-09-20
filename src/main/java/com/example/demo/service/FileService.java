@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.util.List;
 import java.util.Map;
 
+import com.example.demo.domain.Authority;
 import com.example.demo.domain.File;
 import com.obs.services.model.PostSignatureResponse;
 
@@ -123,26 +124,26 @@ public interface FileService {
 	
 	/**
 	 * 
-	 * @Title getFileListByParentId
+	 * @Title getDirAndFileListByParentId
 	 * @Description 根据父id获取该父id下所有的文件和文件夹
 	 * @param parentId 父id
 	 * @param userId 用户id
 	 * @return 父id下所有的文件和文件夹构成的列表
 	 * @throws RuntimeException
 	 */
-	List<File> getFileListByParentId(Integer parentId, Integer userId);
+	List<File> getDirAndFileListByParentId(Integer parentId, Integer userId);
 	
 	
 	/**
 	 * 
-	 * @Title getFileListByName
+	 * @Title getDirAndFileListByName
 	 * @Description 根据名称在当前文件夹下查询文件/文件夹
 	 * @param name 文件/文件夹名称
 	 * @param userId 用户id
 	 * @return 符合条件的文件/文件夹，键存储相对路径,值存储对应文件
 	 * @throws RuntimeException
 	 */
-	 Map<String, File> getFileListByName(String name, Integer parentId, Integer userId);
+	 Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId);
 
 	
 	
@@ -157,5 +158,18 @@ public interface FileService {
 	 * @throws RuntimeException
 	 */
 	String getPathById(Integer fileId, Integer userId);
+	
+	
+	
+	/**
+	 * 
+	 * @Title getGroupDirAndFileListByParentId
+	 * @Description 根据父群组文件夹id获取其包含的群组文件和文件夹列表以及对应当前用户所具有的的权限信息
+	 * @param parentId 父文件夹id
+	 * @param userId 用户id
+	 * @return 返回存储对应用户具有的权限-文件/文件夹的Map
+	 * @throws RuntimeException
+	 */
+	Map<File, Authority> getGroupDirAndFileListByParentId(Integer parentId, Integer userId);
 	
 }

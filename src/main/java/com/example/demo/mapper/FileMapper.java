@@ -71,11 +71,11 @@ public interface FileMapper {
     
     List<File> getLikeByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId);
     
-    //List<File> getAll();
+    List<File> getAll();
     
     List<File> getByCreatorId(Integer creatorId);
     
-    List<File> getByType(Integer type);
+    List<File> getGroupFileAndDir();
     
 
     /**

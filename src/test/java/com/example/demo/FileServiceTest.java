@@ -65,13 +65,13 @@ class FileServiceTest {
 	
 	@Test
 	void testGetFileListByParentId() {
-		List<File> files = fileService.getFileListByParentId(0, 1);
+		List<File> files = fileService.getDirAndFileListByParentId(0, 1);
 		System.out.println(files);
 	}
 
 	@Test
 	void testGetFileListByName() {
-		Map<String, File> files = fileService.getFileListByName("aa", 15, 1);
+		Map<String, File> files = fileService.getDirAndFileListByName("aa", 15, 1);
 		files.entrySet().stream().forEach(f->{
 			System.out.println(f.getKey());
 			System.out.println(f.getValue());
@@ -80,7 +80,7 @@ class FileServiceTest {
 
 	@Test
 	void testGetPathById() {
-		String path = fileService.getPathById(17, 1);
+		String path = fileService.getPathById(16, 1);
 		System.out.println(path);
 	}
 
