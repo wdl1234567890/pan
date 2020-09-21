@@ -1,22 +1,24 @@
 package com.example.demo.vo;
 
-import java.util.Map;
+import com.example.demo.enums.StatusCode;
 
 public class JsonData {
 
+	private boolean success;
 	private Integer code;
-	private String message;
+	private Object message;
 	private Object data;
 	
 	
 	private JsonData() {}
 	
 	public static JsonData buildSuccess(Object data) {
-		return buildSuccess(10000, "成功", data);
+		return buildSuccess(StatusCode.SUCCESS.code(), "成功", data);
 	}
 	
-	public static JsonData buildSuccess(Integer code, String message, Object data) {
+	public static JsonData buildSuccess(Integer code, Object message, Object data) {
 		JsonData jsonData = new JsonData();
+		jsonData.setSuccess(true);
 		jsonData.setCode(code);
 		jsonData.setMessage(message);
 		jsonData.setData(data);
@@ -24,14 +26,22 @@ public class JsonData {
 	}
 	
 	public static JsonData buildError() {
-		return buildError(20000, "失败");
+		return buildError(StatusCode.DEFAULT_ERROR.code(), "失败");
 	}
 	
-	public static JsonData buildError(Integer code, String message) {
+	public static JsonData buildError(Integer code, Object message) {
 		JsonData jsonData = new JsonData();
+		jsonData.setSuccess(false);
 		jsonData.setCode(code);
 		jsonData.setMessage(message);
 		return jsonData;
+	}
+	
+	public boolean getSuccess() {
+		return success;
+	}
+	public void setSuccess(boolean success) {
+		this.success = success;
 	}
 	
 	public Integer getCode() {
@@ -40,10 +50,10 @@ public class JsonData {
 	public void setCode(Integer code) {
 		this.code = code;
 	}
-	public String getMessage() {
+	public Object getMessage() {
 		return message;
 	}
-	public void setMessage(String message) {
+	public void setMessage(Object message) {
 		this.message = message;
 	}
 	public Object getData() {

@@ -1,6 +1,5 @@
 package com.example.demo.service.impl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +10,8 @@ import com.example.demo.domain.Authority;
 import com.example.demo.domain.File;
 import com.example.demo.domain.FileTreeNode;
 import com.example.demo.enums.FileType;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.mapper.AuthorityMapper;
 import com.example.demo.mapper.FileMapper;
 import com.example.demo.service.AuthorityService;
@@ -34,9 +35,9 @@ public class AuthorityServiceImpl implements AuthorityService{
 		
 		//检测文件夹是否是根目录下的群组文件夹
 		File file = fileMapper.selectByPrimaryKey(fileId);
-		if(null == file)throw new RuntimeException("文件夹不存在！");
-		if(file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("文件夹不属于群组，无法设置权限！");
-		if(1 != file.getParentId())throw new RuntimeException("该文件夹不能设置权限！");
+		if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
+		if(file.getType() != FileType.GROUP_DIR.value() || 0 != file.getParentId())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+
 		
 		//过滤具有重复部门id的条目，若重复了，则以第一次出现的条目为准
 		authoritys = ToolUtils.distinctAuthority(authoritys);
@@ -49,7 +50,7 @@ public class AuthorityServiceImpl implements AuthorityService{
 		
 		boolean result = authorityMapper.batchInsert(authoritys);
 		
-		if(!result)throw new RuntimeException("数据库出错，批量添加权限失败！");
+		if(!result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -61,10 +62,10 @@ public class AuthorityServiceImpl implements AuthorityService{
 		//TODO userId是否有权限执行此操作
 		
 		Authority authority = authorityMapper.selectByPrimaryKey(authorityId);
-		if(null == authority)throw new RuntimeException("该权限不存在！");
+		if(null == authority)throw new PanException(StatusCode.AUTHORITY_IS_NOT_EXISTED.code(), StatusCode.AUTHORITY_IS_NOT_EXISTED.message());
 		
 		int result = authorityMapper.deleteByPrimaryKey(authorityId);
-		if(1 != result)throw new RuntimeException("数据库出错，删除权限失败！");
+		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -77,7 +78,7 @@ public class AuthorityServiceImpl implements AuthorityService{
 		//TODO userId是否有权限执行此操作
 		
 		boolean result = authorityMapper.batchDelete(authorityIds);
-		if(!result)throw new RuntimeException("批量删除权限失败！");
+		if(!result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -88,10 +89,10 @@ public class AuthorityServiceImpl implements AuthorityService{
 		//TODO userId是否有权限执行此操作
 		
 		Authority authority2 = authorityMapper.selectByPrimaryKey(authority.getId());
-		if(null == authority2)throw new RuntimeException("权限不存在，修改失败！");
+		if(null == authority2)throw new PanException(StatusCode.AUTHORITY_IS_NOT_EXISTED.code(), StatusCode.AUTHORITY_IS_NOT_EXISTED.message());
 		
 		int result = authorityMapper.updateByExampleSelective(authority, null);
-		if(1 != result)throw new RuntimeException("数据库出错，修改权限失败！");
+		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -101,9 +102,8 @@ public class AuthorityServiceImpl implements AuthorityService{
 		//TODO 参数检验
 		//TODO userId是否有权限执行此操作
 		File file = fileMapper.selectByPrimaryKey(fileId);
-		if(null == file)throw new RuntimeException("文件夹不存在");
-		if(file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("不是群组根目录下的一级文件夹，无法执行该操作");
-		if(0 != file.getParentId())throw new RuntimeException("不是群组根目录下的一级文件夹，无法执行该操作");
+		if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
+		if(file.getType() != FileType.GROUP_DIR.value() || 0 != file.getParentId())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		return authorityMapper.getByFileId(fileId);
 	}
@@ -112,9 +112,8 @@ public class AuthorityServiceImpl implements AuthorityService{
 	public Authority getAuthorityByFileIdAndDepartmentId(Integer fileId, Integer departmentId) {
 		//TODO 参数检验
 		File file = fileMapper.selectByPrimaryKey(fileId);
-		if(null == file)throw new RuntimeException("文件夹不存在");
-		if(file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("不是群组根目录下的一级文件夹，无法执行该操作");
-		if(0 != file.getParentId())throw new RuntimeException("不是群组根目录下的一级文件夹，无法执行该操作");
+		if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
+		if(file.getType() != FileType.GROUP_DIR.value() || 0 != file.getParentId())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		return authorityMapper.getByFileIdAndDepartmentId(fileId, departmentId);
 		
@@ -126,8 +125,10 @@ public class AuthorityServiceImpl implements AuthorityService{
 	public Authority getCurrentAuthority(Integer parentId, Integer departmentId) {
 		File file = fileMapper.selectByPrimaryKey(parentId);
 		//TODO 验证部门是否存在
-		if(null != file && file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("该文件/文件夹不能执行获取权限的操作！");
-		if(file.getId() == 0)throw new RuntimeException("群组根目录不能执行该方法！");
+		
+		if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
+		if(file.getType() != FileType.GROUP_DIR.value() || file.getId() == 0)throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+	
 		//找到当前所处文件夹的所属根文件夹id
 		List<File> groupFileAndDir = fileMapper.getGroupFileAndDir();
 		Map<Integer, FileTreeNode> fileTree = FileTreeNodeUtils.createFileTree(groupFileAndDir);

@@ -65,13 +65,14 @@ class FileServiceTest {
 	
 	@Test
 	void testGetFileListByParentId() {
-		List<File> files = fileService.getDirAndFileListByParentId(0, 1);
+		
+		List<File> files = fileService.getDirAndFileListByParentId(16, 1);
 		System.out.println(files);
 	}
 
 	@Test
 	void testGetFileListByName() {
-		Map<String, File> files = fileService.getDirAndFileListByName("aa", 15, 1);
+		Map<String, File> files = fileService.getDirAndFileListByName("aa", 16, 1);
 		files.entrySet().stream().forEach(f->{
 			System.out.println(f.getKey());
 			System.out.println(f.getValue());

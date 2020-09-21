@@ -15,9 +15,9 @@ import com.example.demo.domain.FileExample;
 import com.example.demo.domain.FileExample.Criteria;
 import com.example.demo.domain.FileTreeNode;
 import com.example.demo.enums.FileType;
-import com.example.demo.mapper.AuthorityMapper;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.mapper.FileMapper;
-import com.example.demo.service.AuthorityService;
 import com.example.demo.service.FileService;
 import com.example.demo.utils.FileTreeNodeUtils;
 import com.obs.services.ObsClient;
@@ -36,9 +36,6 @@ public class FileServiceImpl implements FileService{
 	
 	@Autowired
 	private FileMapper fileMapper;
-	
-	@Autowired
-	private AuthorityService authorityService;
 	
 	@Value("${obs.config.maxLevel}")
 	private Integer maxLevel;
@@ -59,7 +56,7 @@ public class FileServiceImpl implements FileService{
 	 * @param fileId 文件/文件夹id，如果此项参数为空，就不对文件的存在性做检测
 	 * @param userId 用户id， 如果此项参数为空，就不做文件/文件夹与用户是否匹配的检测
 	 * @return 如果fileId不为空，并且检测都通过，则返回对应fileId的file;若fileId和userId都为空，则返回null，检测不通过则抛出异常
-	 * @throws RuntimeException
+	 * @throws PanException
 	 */
 	private File checkArgs(List<Object> args, Integer fileId, Integer userId) {
 		
@@ -67,14 +64,14 @@ public class FileServiceImpl implements FileService{
 		boolean anyMatch = args.stream().anyMatch(arg->{
 			return null == arg;
 		});
-		if(anyMatch)throw new RuntimeException("参数为空！");
+		if(anyMatch)throw new PanException(StatusCode.PARAM_IS_EMPTY.code(), StatusCode.PARAM_IS_EMPTY.message());
 		
 		//文件存在性检测以及文件用户是否匹配的检测
 		if(null != fileId) {
 			File file = fileMapper.selectByPrimaryKey(fileId);
-			if(null == file)throw new RuntimeException("文件/文件夹不存在！");
+			if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
 			if(0 != fileId && null != userId) {
-				if(file.getCreatorId() != userId)throw new RuntimeException("当前用户无权限操作");
+				if(file.getCreatorId() != userId)throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 			}
 			return file;
 		}
@@ -113,14 +110,14 @@ public class FileServiceImpl implements FileService{
 	 * @param maxLevel 最大的层数
 	 * @param userId 用户id
 	 * @return 大于等于最大可创建层数则返回true，否则返回false
-	 * @throws RuntimeException
+	 * @throws PanException
 	 */
 	private boolean isOverMaxLevel(Integer fileId, Integer maxLevel, Integer userId) {
 		List<File> files = fileMapper.getByCreatorId(userId);
-		if(null == files || files.size() == 0)throw new RuntimeException("当前用户还没有任何文件/文件夹！");
+		if(null == files || files.size() == 0)return false;
 		
 		File file = fileMapper.selectByPrimaryKey(fileId);
-		if(null == file || file.getType() != FileType.USER_DIR.value())throw new RuntimeException("当前文件夹不存在！");
+		if(null == file || file.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
 		
 		Map<Integer, FileTreeNode> fileTree= FileTreeNodeUtils.createFileTree(files);
 		
@@ -139,7 +136,7 @@ public class FileServiceImpl implements FileService{
 	 * @param fileId
 	 * @param userId
 	 * @return 删除成功则返回true，否则抛异常
-	 * @throws RuntimeException
+	 * @throws PanException
 	 */
 	@Transactional
 	private boolean removeFileOrDir(Integer fileId, Integer userId) {
@@ -150,7 +147,7 @@ public class FileServiceImpl implements FileService{
 			
 			//数据库中删除
 			int result = fileMapper.deleteByPrimaryKey(fileId);
-			if(1 != result)throw new RuntimeException("数据路出错，删除失败！");
+			if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 			
 			//obs删除对应对象
 			DeleteObjectResult deleteObject = obsClient.deleteObject(bucketName, file.getObjectName());
@@ -161,8 +158,6 @@ public class FileServiceImpl implements FileService{
 			//删除文件夹
 			
 			List<File> files = fileMapper.getByCreatorId(userId);
-			if(null == files || files.size() == 0)throw new RuntimeException("当前用户还没有任何文件/文件夹！");
-			
 			
 			Map<Integer, FileTreeNode> fileTree = FileTreeNodeUtils.createFileTree(files);
 			
@@ -173,7 +168,7 @@ public class FileServiceImpl implements FileService{
 			
 			//批量删除数据库中对应id的file
 			boolean result = fileMapper.batchDeleteById(ids);
-			if(!result)throw new RuntimeException("数据库出错，删除失败！");
+			if(!result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 			
 			//删除obs中objectKeys对应的对象
 			objectKeys.stream().forEach(objectKey->{
@@ -198,7 +193,7 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public boolean createDir(File file, Integer userId) {
 		File parentFile = checkArgs(Arrays.asList(file, userId), file.getParentId(), userId);
-		if(null != parentFile && parentFile.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件下不能执行创建文件夹操作！");
+		if(null != parentFile && parentFile.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		
 		//为文件夹添加属性值
 		file.setCreateDay(new Date());
@@ -207,13 +202,13 @@ public class FileServiceImpl implements FileService{
 		file.setType(FileType.USER_DIR.value());
 		
 		//检测文件夹是否已经存在
-		if(isRepeat(file))throw new RuntimeException("文件夹已存在！");
+		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		
 		//判断是否已经到达新建文件夹的最大层数
-		if(isOverMaxLevel(file.getParentId(), maxLevel, userId))throw new RuntimeException("已经超过最大层数，不能再新建文件夹！");
+		if(isOverMaxLevel(file.getParentId(), maxLevel, userId))throw new PanException(StatusCode.IS_OVER_DIR_MAX_LEVEL.code(), StatusCode.IS_OVER_DIR_MAX_LEVEL.message());
 		
 		int result = fileMapper.insert(file);
-		if(1 != result)throw new RuntimeException("数据库出错，创建文件夹失败！");
+		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -222,17 +217,17 @@ public class FileServiceImpl implements FileService{
 	public boolean createFile(File file, Integer userId) {
 		
 		File parentFile = checkArgs(Arrays.asList(file, userId), file.getParentId(), userId);
-		if(null != parentFile && parentFile.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件下不能执行上传文件操作！");
+		if(null != parentFile && parentFile.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		file.setCreateDay(new Date());
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
 		file.setType(FileType.USER_FILE.value());
 		
-		if(isRepeat(file))throw new RuntimeException("文件已存在！");
+		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		
 		int result = fileMapper.insert(file);
-		if(1 != result)throw new RuntimeException("数据库出错，创建文件失败！");
+		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -241,7 +236,7 @@ public class FileServiceImpl implements FileService{
 	public String getDownloadUrl(Integer fileId, Integer userId) {
 		
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
-		if(file.getType() != FileType.USER_FILE.value())throw new RuntimeException("暂时不支持下载或分享文件夹！");
+		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
 		request.setBucketName(bucketName);
@@ -271,7 +266,7 @@ public class FileServiceImpl implements FileService{
 		File file1 = checkArgs(Arrays.asList(file, newName, userId), file.getId(), userId);
 		file1.setName(newName);
 		int result = fileMapper.updateByPrimaryKey(file1);
-		if(1 != result)throw new RuntimeException("数据库出错，重命名失败！");
+		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
 		return true;
 	}
@@ -285,10 +280,9 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public List<File> getDirAndFileListByParentId(Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(parentId, userId), parentId, userId);
-		if(file.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件无法执行此操作！");
+		if(file.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		List<File> files = fileMapper.selectByParentId(parentId, userId);
-		if(null == files || files.size() == 0) throw new RuntimeException("该文件夹为空！");
 		
 		return files;
 	}
@@ -296,10 +290,10 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(name,parentId, userId), parentId, userId);
-		if(file.getType() != FileType.USER_DIR.value())throw new RuntimeException("文件无法执行此操作！");
+		if(file.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		List<File> files = fileMapper.getByCreatorId(userId);
-		if(null == files || files.size() == 0)throw new RuntimeException("当前用户还没有任何文件/文件夹！");
+
 		Map<Integer, FileTreeNode> fileTree = FileTreeNodeUtils.createFileTree(files);
 		return FileTreeNodeUtils.getFilesByNameAndParentId(fileTree, parentId, name);
 	}
@@ -309,7 +303,7 @@ public class FileServiceImpl implements FileService{
 		checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		
 		List<File> files = fileMapper.getByCreatorId(userId);
-		if(null == files || files.size() == 0)throw new RuntimeException("当前用户还没有任何文件/文件夹！");
+
 		Map<Integer, FileTreeNode> fileTree = FileTreeNodeUtils.createFileTree(files);
 		String path = FileTreeNodeUtils.getPathById(fileTree, fileId);
 		return path;
@@ -320,7 +314,7 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public Map<File, Authority> getGroupDirAndFileListByParentId(Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(parentId, userId), parentId, userId);
-		if(null == file || file.getType() != FileType.GROUP_DIR.value())throw new RuntimeException("该文件/文件夹不能能执行此操作1！");
+		if(null == file || file.getType() != FileType.GROUP_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		
 		//TODO 检查userId是否有权限
 		

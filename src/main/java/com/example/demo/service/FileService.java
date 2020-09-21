@@ -28,7 +28,7 @@ public interface FileService {
 	 * @Description 创建文件夹
 	 * @param file 文件夹参数
 	 * @param userId 用户id
-	 * @return 创建成功返回true，否则返回false
+	 * @return 创建成功返回true，否则抛异常
 	 * @throws RuntimeException
 	 */
 	boolean createDir(File file, Integer userId);
@@ -41,7 +41,7 @@ public interface FileService {
 	 * @Description 创建文件
 	 * @param file 文件参数
 	 * @param userId 用户id
-	 * @return 创建成功返回true，否则返回false
+	 * @return 创建成功返回true，否则返回抛异常
 	 * @throws RuntimeException
 	 */
 	boolean createFile(File file, Integer userId);
@@ -90,7 +90,7 @@ public interface FileService {
 	 * @Description 批量删除文件和文件夹
 	 * @param ids 文件和文件夹的id列表
 	 * @param userId 用户id
-	 * @return 全部删除成功返回true,否则返回false
+	 * @return 全部删除成功返回true,否则返回抛异常
 	 * @throws RuntimeException
 	 */
 	boolean batchRemoveFileAndDir(List<Integer> ids, Integer userId);
@@ -104,7 +104,7 @@ public interface FileService {
 	 * @param file 文件或文件夹参数
 	 * @param newName 新的名称
 	 * @param userId 用户id
-	 * @return 重命名成功返回true，否则返回false
+	 * @return 重命名成功返回true，否则返回抛异常
 	 * @throws RuntimeException
 	 */
 	boolean renameFileOrDir(File file, String newName, Integer userId);
@@ -128,7 +128,7 @@ public interface FileService {
 	 * @Description 根据父id获取该父id下所有的文件和文件夹
 	 * @param parentId 父id
 	 * @param userId 用户id
-	 * @return 父id下所有的文件和文件夹构成的列表
+	 * @return 父id下所有的文件和文件夹构成的列表,若该父文件夹为空，则返回空列表（不是null）
 	 * @throws RuntimeException
 	 */
 	List<File> getDirAndFileListByParentId(Integer parentId, Integer userId);
