@@ -24,6 +24,7 @@ import com.example.demo.Login.service.LoginService;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserLog;
 import com.example.demo.util.JsonData;
+import com.example.demo.util.LoginData;
 import com.example.demo.util.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,7 +48,7 @@ public class LoginController {
 	private Integer defaultTokenValidTime;
 
 	@RequestMapping("login") 
-	public JsonData LoginUser(Integer id,String pwd,Integer savetime) {
+	public LoginData LoginUser(Integer id,String pwd,Integer savetime) {
 		//设置基本参数
 		UserLog message=new UserLog();
 		User user = new User();
@@ -60,13 +61,13 @@ public class LoginController {
 		try {
 			message = loginService.loginUser(user);
 			if(message.getUser()==null) {
-				return JsonData.buildError(message.getMessage());
+				return LoginData.buildError(message.getMessage());
 			}
 			//将用户信息转换成json字符串 
 			ObjectMapper mapper = new ObjectMapper(); 
 			UserTokenVo tokenVo = new UserTokenVo(message.getUser(),savetime);
 			String jsonRst = mapper.writeValueAsString(tokenVo);
-			System.out.println(message.getUser().getId());
+			
 			//获取redis连接池
 			Jedis jedis = jedisPool.getResource();
 			//设置token对象，用以检测登陆状态
@@ -91,11 +92,11 @@ public class LoginController {
 				jedis.close();
 			}
 			//redis服务器设置完毕后，将token返回至前端
-			return JsonData.buildSuccess(token);
+			return LoginData.buildSuccess(token,message.getUser());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return JsonData.buildError("异常");
+			return LoginData.buildError("异常");
 		}
 	}
 
