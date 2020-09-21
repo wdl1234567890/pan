@@ -23,5 +23,5 @@ import com.example.demo.domain.UserLog;
 public interface LoginService {
 	UserLog loginUser(User user)throws Exception;
 	void logOffUser(String token)throws Exception;
-	void pwdToMail(String mail,Integer id)throws Exception;
+	String pwdToMail(String mail,Integer id)throws Exception;
 }
