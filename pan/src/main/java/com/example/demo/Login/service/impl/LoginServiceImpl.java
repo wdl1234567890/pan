@@ -16,6 +16,8 @@ package com.example.demo.Login.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Login.service.LoginService;
@@ -37,6 +39,8 @@ public class LoginServiceImpl implements LoginService {
 	private UserMapper userMapper;
 	@Autowired
 	private JedisPool jedisPool;
+	@Autowired
+    private JavaMailSender javaMailSender;
 	/**
 	 * 
 	 * @Title: loginUser
@@ -88,9 +92,24 @@ public class LoginServiceImpl implements LoginService {
 	 * @date 2020-09-17 09:44:40
 	 */
 	@Override
-	public void pwdToMail(String mail, Integer id) throws Exception {
-		// TODO Auto-generated method stub
-
+	public String pwdToMail(String mail, Integer id) throws Exception {
+		User user = userMapper.selectByPrimaryKey(id);
+		//若不存在该用户，或是邮箱不正确都返回错误信息
+		if(user==null) {
+			return "不存在该用户名";
+		}else if(!mail.equals(user.getMail())){
+			return "邮箱不匹配！";
+		}
+		//用户名与邮箱都正确,发送密码邮件
+		SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("2420355525@qq.com");//发送者
+        msg.setTo("\n" + mail);//接收者
+        msg.setSubject("你的密码已找回,请牢记密码");//标题
+        msg.setText(user.getPwd());//邮件内容为该用户的秒
+        javaMailSender.send(msg);
+        System.out.println(msg);
+        //发送成功则返回null
+        return null;
 	}
 
 }
