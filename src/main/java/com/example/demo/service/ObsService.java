@@ -6,6 +6,13 @@ import com.obs.services.model.PostSignatureResponse;
 
 public interface ObsService {
 	
+	/**
+	 * 
+	 * @Title createObsClicent
+	 * @Description 创建一个obsClient
+	 * @return 没有返回值
+	 */
+	void createObsClicent();
 	
 	/**
 	 * 
@@ -38,5 +45,15 @@ public interface ObsService {
 	 * @throws ObsException
 	 */
 	boolean deleteObsject(String objectKey);
+	
+	
+	/**
+	 * 
+	 * @Title closeObsClient
+	 * @Description 关闭obs连接
+	 * @return 没有返回值
+	 * @throws
+	 */
+	void closeObsClient();
 
 }

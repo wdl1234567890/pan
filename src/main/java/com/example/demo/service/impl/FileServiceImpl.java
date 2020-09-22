@@ -214,22 +214,25 @@ public class FileServiceImpl implements FileService{
 
 	@Override
 	public String getDownloadUrl(Integer fileId, Integer userId) {
-		
+		obsService.createObsClicent();
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
-		return obsService.getObjectUrl(file.getObjectName());
+		String objectUrl = obsService.getObjectUrl(file.getObjectName());
+		obsService.closeObsClient();
+		return objectUrl;
 	}
 
 	@Override
 	@Transactional
 	public boolean batchRemoveFileAndDir(List<Integer> ids, Integer userId) {
-		
+		obsService.createObsClicent();
 		checkArgs(Arrays.asList(ids, userId), null, null);
 		
 		ids.stream().forEach(id->{
 			removeFileOrDir(id, userId);
 		});
 		
+		obsService.closeObsClient();
 		return true;
 	}
 
