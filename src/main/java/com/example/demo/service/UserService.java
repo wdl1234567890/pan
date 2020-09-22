@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.domain.User;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public interface UserService {
 
     Boolean addUser(User user) throws Exception;
 
-    Boolean importUsers(File userList) throws Exception;
+    Boolean importUsers(InputStream inputStream, String filename) throws Exception;
 
     Boolean delUser(int id) throws Exception;
 
@@ -28,7 +29,7 @@ public interface UserService {
 
     User loginUser(String name, String pass) throws Exception;
 
-    User getAccoutById(int id) throws Exception;
+    User getUserById(int id) throws Exception;
 
     List<User> findUserByName(String name, Boolean islike) throws Exception;
 

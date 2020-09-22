@@ -1,17 +1,30 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.domain.User;
+import com.example.demo.domain.UserExample;
+import com.example.demo.mapper.UserMapper;
+import com.example.demo.domain.User;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.ExcelUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author GooRay
  * 创建于 2020/9/17
  */
+@Service
 public class UserServiceImpl implements UserService {
 
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 查询所有用户
@@ -20,7 +33,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<User> listAllUser() throws Exception {
-        return null;
+        List<User> list;
+        try{
+            list = userMapper.selectByExample(new UserExample());
+        }catch (Exception e){
+            throw new Exception("查询失败");
+        }
+        return list;
     }
 
     /**
@@ -31,18 +50,44 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean addUser(User user) throws Exception {
-        return null;
+        int insert = userMapper.insert(user);
+        if(insert==1){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
      * 批量导入用户
-     * @param userList file类型的userList
-     * @return Boolean 是否成功
+     * @param inputStream
+     * @param filename
+     * @return
      * @throws Exception
      */
+    @Transactional
     @Override
-    public Boolean importUsers(File userList) throws Exception {
-        return null;
+    public Boolean importUsers(InputStream inputStream,String filename) throws Exception {
+        List<Map<String, Object>> list = ExcelUtil.ReadExcel(inputStream,filename);
+        List<User> users = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            User user = new User();
+            user.setName((String) map.get("name"));
+            user.setPwd((String) map.get("pwd"));
+            user.setDepartment((Integer) map.get("department"));
+            user.setMail((String) map.get("mail"));
+            user.setPhone((String) map.get("phone"));
+            user.setLevel((Integer) map.get("level"));
+            users.add(user);
+        }
+        try{
+            for (User user : users) {
+                userMapper.insert(user);
+            }
+        }catch (Exception e){
+            throw new Exception("插入失败！");
+        }
+        return true;
     }
 
     /**
@@ -53,7 +98,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean delUser(int id) throws Exception {
-        return null;
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
+        criteria.andIdEqualTo(id);
+        int delete = userMapper.deleteByExample(userExample);
+        if(delete==1){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
@@ -62,9 +115,18 @@ public class UserServiceImpl implements UserService {
      * @return Boolean 是否成功
      * @throws Exception
      */
+    @Transactional
     @Override
     public Boolean delUserList(List idls) throws Exception {
-        return null;
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
+        criteria.andIdIn(idls);
+        int delete = userMapper.deleteByExample(userExample);
+        if(delete==idls.size()){
+            return true;
+        }else{
+            throw new Exception("删除失败");
+        }
     }
 
     /**
@@ -75,6 +137,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean changeUser(User newUser) throws Exception {
+        UserExample userExample = new UserExample();
+        userMapper.updateByExample(newUser,userExample);
         return null;
     }
 
@@ -121,8 +185,12 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public User getAccoutById(int id) throws Exception {
-        return null;
+    public User getUserById(int id) throws Exception {
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
+        criteria.andIdEqualTo(id);
+        List<User> users = userMapper.selectByExample(userExample);
+        return users.get(0);
     }
 
     /**
