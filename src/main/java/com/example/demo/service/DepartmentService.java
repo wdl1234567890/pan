@@ -20,4 +20,6 @@ public interface DepartmentService {
 
     Integer countUserByDepartment(Integer id) throws Exception;
 
+    Department findDepartmentById(Integer id) throws Exception;
+
 }
