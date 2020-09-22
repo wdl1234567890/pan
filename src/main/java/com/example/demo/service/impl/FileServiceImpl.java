@@ -19,33 +19,21 @@ import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
 import com.example.demo.mapper.FileMapper;
 import com.example.demo.service.FileService;
+import com.example.demo.service.ObsService;
 import com.example.demo.utils.FileTreeNodeUtils;
-import com.obs.services.ObsClient;
-import com.obs.services.model.DeleteObjectResult;
-import com.obs.services.model.HttpMethodEnum;
-import com.obs.services.model.PostSignatureRequest;
-import com.obs.services.model.PostSignatureResponse;
-import com.obs.services.model.TemporarySignatureRequest;
-import com.obs.services.model.TemporarySignatureResponse;
+
 
 @Service
 public class FileServiceImpl implements FileService{
-
-	@Autowired
-	private ObsClient obsClient;
 	
 	@Autowired
 	private FileMapper fileMapper;
 	
+	@Autowired
+	private ObsService obsService;
+	
 	@Value("${obs.config.maxLevel}")
 	private Integer maxLevel;
-	
-	@Value("${obs.config.expires}")
-	private Long expires;
-	
-	@Value("${obs.config.bucketName}")
-	private String bucketName;
-	
 	
 	
 	/**
@@ -150,8 +138,8 @@ public class FileServiceImpl implements FileService{
 			if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 			
 			//obs删除对应对象
-			DeleteObjectResult deleteObject = obsClient.deleteObject(bucketName, file.getObjectName());
-			//TODO 对deleteObject进行判断
+			boolean deleteResult = obsService.deleteObsject(file.getObjectName());
+			if(!deleteResult)return false;
 			
 			
 		}else if(file.getType() == FileType.USER_DIR.value()) {
@@ -172,8 +160,7 @@ public class FileServiceImpl implements FileService{
 			
 			//删除obs中objectKeys对应的对象
 			objectKeys.stream().forEach(objectKey->{
-				DeleteObjectResult deleteObjectResult = obsClient.deleteObject(bucketName, objectKey);
-				//TODO obs出错处理
+				obsService.deleteObsject(objectKey);		
 			});
 		}
 		
@@ -181,14 +168,7 @@ public class FileServiceImpl implements FileService{
 		
 	}
 	
-	
-	@Override
-	public PostSignatureResponse getPostSignature() {
-		PostSignatureRequest request = new PostSignatureRequest();
-		request.setExpires(expires);
-		return obsClient.createPostSignature(request);
-		
-	}
+
 
 	@Override
 	public boolean createDir(File file, Integer userId) {
@@ -237,14 +217,7 @@ public class FileServiceImpl implements FileService{
 		
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
-		
-		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
-		request.setBucketName(bucketName);
-		request.setObjectKey(file.getObjectName());
-
-		TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
-		
-		return response.getSignedUrl();
+		return obsService.getObjectUrl(file.getObjectName());
 	}
 
 	@Override
@@ -261,10 +234,10 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public boolean renameFileOrDir(File file, String newName, Integer userId) {
+	public boolean renameFileOrDir(File file, Integer userId) {
 		
-		File file1 = checkArgs(Arrays.asList(file, newName, userId), file.getId(), userId);
-		file1.setName(newName);
+		File file1 = checkArgs(Arrays.asList(file, file.getName(), userId), file.getId(), userId);
+		file1.setName(file.getName());
 		int result = fileMapper.updateByPrimaryKey(file1);
 		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 		
@@ -288,7 +261,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
+	public List<Map<String, Object>> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(name,parentId, userId), parentId, userId);
 		if(file.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		

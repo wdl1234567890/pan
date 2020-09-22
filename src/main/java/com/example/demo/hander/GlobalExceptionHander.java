@@ -1,13 +1,22 @@
 package com.example.demo.hander;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.example.demo.enums.StatusCode;
@@ -44,12 +53,24 @@ public class GlobalExceptionHander {
 	 * @param ex
 	 * @return 返回JsonData封装的校验不通过的相关信息
 	 */
-	@ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
+	@ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, ConstraintViolationException.class})
 	public JsonData handlerValidateException(Exception ex) {
+		
+		HashMap<String,Object> errorMap = new HashMap<>();
+		
 		BindingResult result = null;
 		if(ex instanceof MethodArgumentNotValidException)result = ((MethodArgumentNotValidException)ex).getBindingResult();
 		else if(ex instanceof BindException)result = ((BindException)ex).getBindingResult();
-		HashMap<String,Object> errorMap = new HashMap<>();
+		else if(ex instanceof ConstraintViolationException) {
+			Set<ConstraintViolation<?>> violations = ((ConstraintViolationException)ex).getConstraintViolations();
+			List<Integer> index = Arrays.asList(1);
+			violations.stream().forEach(vio -> {
+				errorMap.put("param" + index.get(0), vio.getMessage());
+				index.set(0, index.get(0) + 1);
+			});
+			return JsonData.buildError(StatusCode.PARAM_VALIDATE_FAILED.code(), errorMap);
+		}
+		
 		result.getFieldErrors().forEach(error -> {
 			errorMap.put(error.getField(), error.getDefaultMessage());
 		});
@@ -86,11 +107,12 @@ public class GlobalExceptionHander {
 	
 		if(ex instanceof NoHandlerFoundException 
 				|| ex instanceof HttpRequestMethodNotSupportedException
-				|| ex instanceof IllegalStateException) {
+				|| ex instanceof IllegalStateException
+				|| ex instanceof MethodArgumentTypeMismatchException
+				|| ex instanceof HttpMessageNotReadableException) {
 			code = StatusCode.CLIENT_ERROR.code();
 			message = StatusCode.CLIENT_ERROR.message();
 		}else {
-
 			code = StatusCode.SERVER_ERROR.code();
 			message = StatusCode.SERVER_ERROR.message();
 		}

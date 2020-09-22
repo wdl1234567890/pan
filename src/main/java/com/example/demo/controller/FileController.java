@@ -1,30 +1,146 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.File;
 import com.example.demo.service.FileService;
+import com.example.demo.service.ObsService;
+import com.example.demo.validate.group.Group;
+import com.example.demo.vo.FileSearch;
 import com.example.demo.vo.JsonData;
+import com.obs.services.model.PostSignatureResponse;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/pri/file")
 public class FileController {
 	
 	@Autowired
 	FileService fileService;
 	
+	@Autowired
+	ObsService obsService;
 	
-	@PostMapping("/dir")
-	public JsonData createDir(File file, HttpHeaders headers) {
+	@Value("${obs.config.accessKey}")
+	String ak;
+	
+	@PostMapping
+	public JsonData createFile(@RequestBody @Validated(Group.CreateFile.class) File file, @RequestHeader HttpHeaders headers) {
 		//TODO 从header中拿token
 		//TODO 根据token从redis中拿用户信息
-		Integer userId = null;
+		Integer userId = 1;
+		fileService.createFile(file, userId);
+		Map<String, Integer> map = new HashMap<>();
+		map.put("fileId", file.getId());
+		return JsonData.buildSuccess(map);
+	}
+	
+	@PostMapping("/dir")
+	public JsonData createDir(@RequestBody @Validated(Group.CreateDir.class) File file, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
 		fileService.createDir(file, userId);
 		return JsonData.buildSuccess(null);
+	}
+	
+	
+	@GetMapping("/upload/param")
+	public JsonData getUploadParam() {
+		PostSignatureResponse postSignature = obsService.getPostSignature();
+		Map<String, Object> data = new HashMap<>();
+		data.put("ak", ak);
+		data.put("policy", postSignature.getPolicy());
+		data.put("signature", postSignature.getSignature());
+		return JsonData.buildSuccess(data);
+	}
+	
+	
+	@DeleteMapping
+	public JsonData deleteDirOrFile(@RequestBody @NotEmpty(message = "参数不能为空") List<Integer> ids, @RequestHeader HttpHeaders headers) {
+		
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		fileService.batchRemoveFileAndDir(ids, userId);
+		return JsonData.buildSuccess(null);
+	}
+	
+	@PutMapping
+	public JsonData renameDirOrFile(@RequestBody @Validated(Group.UpdateDirOrFile.class) File file, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		fileService.renameFileOrDir(file, userId );
+		return JsonData.buildSuccess(null);
+	}
+	
+	
+	@GetMapping("/{id}")
+	public JsonData getDownloadFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		String downloadUrl = fileService.getDownloadUrl(fileId, userId);
+		Map<String,String> map = new HashMap<>();
+		map.put("downloadUrl", downloadUrl);
+		return JsonData.buildSuccess(map);
+	}
+	
+	@GetMapping("/share/{id}")
+	public JsonData getShareFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		String shareUrl = fileService.getShareUrl(fileId, userId);
+		Map<String,String> map = new HashMap<>();
+		map.put("shareUrl", shareUrl);
+		return JsonData.buildSuccess(map);
+	}
+	
+	
+	@GetMapping("/list/{id}")
+	public JsonData getDirAndFileListByParentId(@PathVariable("id") @NotNull(message = "parentId不能为空") @Min(value = 0, message="parentId必须为大于等于0的整数") Integer parentId, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		List<File> files = fileService.getDirAndFileListByParentId(parentId, userId);
+		String path = fileService.getPathById(parentId, userId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("path", path);
+		map.put("files", files);
+		return JsonData.buildSuccess(map);
+	
+	}
+	
+	
+	@GetMapping("/list/search")
+	public JsonData getDirAndFileListByName(@RequestBody @Validated FileSearch fileSearch, @RequestHeader HttpHeaders headers) {
+		//TODO 从header中拿token
+		//TODO 根据token从redis中拿用户信息
+		Integer userId = 1;
+		List<Map<String, Object>> files = fileService.getDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), userId);
+		return JsonData.buildSuccess(files);
 	}
 	
 }

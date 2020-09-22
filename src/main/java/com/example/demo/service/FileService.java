@@ -9,18 +9,6 @@ import com.obs.services.model.PostSignatureResponse;
 
 public interface FileService {
 	
-	
-	
-	
-	
-	/**
-	 * 
-	 * @Title getPostSignature
-	 * @Description 获取obs签名信息
-	 * @return 包装了Signature和Policy的类
-	 */
-	public PostSignatureResponse getPostSignature();
-	
 
 	/**
 	 * 
@@ -102,12 +90,11 @@ public interface FileService {
 	 * @Title renameFileOrDir
 	 * @Description 重命名文件或文件夹
 	 * @param file 文件或文件夹参数
-	 * @param newName 新的名称
 	 * @param userId 用户id
 	 * @return 重命名成功返回true，否则返回抛异常
 	 * @throws RuntimeException
 	 */
-	boolean renameFileOrDir(File file, String newName, Integer userId);
+	boolean renameFileOrDir(File file,Integer userId);
 	
 	
 	/**
@@ -140,10 +127,10 @@ public interface FileService {
 	 * @Description 根据名称在当前文件夹下查询文件/文件夹
 	 * @param name 文件/文件夹名称
 	 * @param userId 用户id
-	 * @return 符合条件的文件/文件夹，键存储相对路径,值存储对应文件
+	 * @return 符合条件的文件/文件夹
 	 * @throws RuntimeException
 	 */
-	 Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId);
+	 List<Map<String, Object>>  getDirAndFileListByName(String name, Integer parentId, Integer userId);
 
 	
 	

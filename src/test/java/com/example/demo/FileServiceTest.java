@@ -10,19 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.demo.domain.File;
 import com.example.demo.service.FileService;
-import com.obs.services.model.PostSignatureResponse;
 
 @SpringBootTest
 class FileServiceTest {
 	
 	@Autowired
 	FileService fileService;
-
-	@Test
-	void testGetPostSignature() {
-		PostSignatureResponse postSignature = fileService.getPostSignature();
-		System.out.println(postSignature.getSignature());
-	}
 
 	@Test
 	void testCreateDir() {
@@ -60,7 +53,8 @@ class FileServiceTest {
 	void testRenameFileOrDir() {
 		File file = new File();
 		file.setId(18);
-		fileService.renameFileOrDir(file, "新名称3", 2);
+		file.setName("newName");
+		fileService.renameFileOrDir(file, 2);
 	}
 	
 	@Test
@@ -72,11 +66,8 @@ class FileServiceTest {
 
 	@Test
 	void testGetFileListByName() {
-		Map<String, File> files = fileService.getDirAndFileListByName("aa", 16, 1);
-		files.entrySet().stream().forEach(f->{
-			System.out.println(f.getKey());
-			System.out.println(f.getValue());
-		});
+		List<Map<String, Object>> files = fileService.getDirAndFileListByName("aa", 16, 1);
+		
 	}
 
 	@Test
