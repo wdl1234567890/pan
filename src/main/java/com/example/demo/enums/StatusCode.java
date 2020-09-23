@@ -31,9 +31,11 @@ public enum StatusCode {
 	
 	OBS_ERROR(60000, "obs错误代码"),
 	
-	CLIENT_ERROR(70000, "客户端请求发生错误"),
+	REDIS_ERROR(70000, "redis错误"),
 	
-	SERVER_ERROR(80000, "服务端发生错误");
+	CLIENT_ERROR(80000, "客户端请求发生错误"),
+	
+	SERVER_ERROR(90000, "服务端发生错误");
 	
 	
 	private Integer code;

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.vo.JsonData;
-import com.example.demo.utils.UserTokenVo;
+import com.example.demo.vo.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import redis.clients.jedis.Jedis;

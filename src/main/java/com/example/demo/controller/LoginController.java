@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,8 +25,8 @@ import com.example.demo.service.LoginService;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserLog;
 import com.example.demo.exception.PanException;
-import com.example.demo.utils.LoginData;
-import com.example.demo.utils.UserTokenVo;
+import com.example.demo.vo.LoginData;
+import com.example.demo.vo.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import redis.clients.jedis.Jedis;
@@ -47,7 +48,7 @@ public class LoginController {
 	@Value("${server.default_token_savatime}")
 	private Integer defaultTokenValidTime;
 
-	@RequestMapping("login") 
+	@PostMapping
 	public LoginData LoginUser(Integer id,String pwd,Integer savetime) {
 		//设置基本参数
 		UserLog message=new UserLog();
