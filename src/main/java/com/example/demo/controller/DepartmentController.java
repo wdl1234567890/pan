@@ -35,7 +35,7 @@ public class DepartmentController {
         if(departmentService.delDepartment(id)){
             return JsonData.buildSuccess("删除成功");
         }else{
-            return JsonData.buildError(20000,"删除失败");
+            return JsonData.buildError();
         }
 
     }
