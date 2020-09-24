@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class ExcelUtil {
 
-    public static List<Map<String, Object>> ReadExcel(InputStream inputStream, String filename) throws Exception {
+    public static List<Map<String, Object>> ReadExcel(InputStream inputStream, String filename) {
         // 创建返回列表
         List<Map<String, Object>> employees = new ArrayList<>();
 
@@ -82,7 +82,7 @@ public class ExcelUtil {
 
             // 判断当前行的长度
             if(row.getPhysicalNumberOfCells()!=headers.length){
-                throw new Exception("第"+(i+1)+"行，格式错误");
+                throw new PanException(StatusCode.FILE_FORMAT_ERROR.code(),"第"+(i+1)+"行，格式错误");
             }
             // 遍历当前行的每一列
             for(int j=0;j<headers.length;j++) {

@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public Boolean importUsers(InputStream inputStream,String filename) throws Exception {
+    public Boolean importUsers(InputStream inputStream,String filename){
         List<Map<String, Object>> list = ExcelUtil.ReadExcel(inputStream,filename);
         List<User> users = new ArrayList<>();
         for (Map<String, Object> map : list) {
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public Boolean delUserList(List<Integer> idls) throws Exception {
+    public Boolean delUserList(List<Integer> idls) {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
         criteria.andIdIn(idls);

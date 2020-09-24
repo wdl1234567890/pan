@@ -14,12 +14,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.domain.User;
+import com.example.demo.dto.IdlsDTO;
 import com.example.demo.service.UserService;
 import com.example.demo.vo.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,15 +42,13 @@ public class UserController {
         return JsonData.buildSuccess(userService.getUserById(user.getId()));
     }
     @RequestMapping(value = "importUsers",method = RequestMethod.POST)
-    public JsonData importUsers(MultipartFile multipartFile){
-        try{
-            if(userService.importUsers(multipartFile.getInputStream(),multipartFile.getOriginalFilename())){
-                return JsonData.buildSuccess("导入成功");
-            }else{
-                return JsonData.buildError();
-            }
-        }catch (Exception e){
-            return JsonData.buildError(20000,e.getMessage());
+    public JsonData importUsers(@RequestBody MultipartFile multipartFile) throws Exception {
+        System.out.println(multipartFile);
+        System.out.println(multipartFile.getOriginalFilename());
+        if(userService.importUsers(multipartFile.getInputStream(),multipartFile.getOriginalFilename())){
+            return JsonData.buildSuccess("导入成功");
+        }else{
+            return JsonData.buildError();
         }
     }
 
@@ -60,17 +60,19 @@ public class UserController {
         return JsonData.buildError();
     }
 
-    @RequestMapping(value = "users",method = RequestMethod.DELETE)
-    public JsonData deleteUsers(@RequestBody List<Integer> idls){
-        try{
-            if(userService.delUserList(idls)){
+    @DeleteMapping("users")
+//    @RequestMapping(value = "users",method = RequestMethod.DELETE)
+    public JsonData deleteUsers(@RequestBody IdlsDTO dto){
+        List<Integer> list = new ArrayList<>();
+        Integer[] idls = dto.getIdls();
+        for (Integer idl : idls) {
+            list.add(idl);
+        }
+        if(userService.delUserList(list)){
                 return JsonData.buildSuccess("删除成功");
             }else{
                 return JsonData.buildError();
             }
-        }catch (Exception e){
-            return JsonData.buildError();
-        }
     }
 
     @RequestMapping(value = "user",method = RequestMethod.PUT)

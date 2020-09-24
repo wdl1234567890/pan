@@ -15,11 +15,11 @@ public interface UserService {
 
     Boolean addUser(User user);
 
-    Boolean importUsers(InputStream inputStream, String filename) throws Exception;
+    Boolean importUsers(InputStream inputStream, String filename);
 
     Boolean delUser(int id);
 
-    Boolean delUserList(List<Integer> idls) throws Exception;
+    Boolean delUserList(List<Integer> idls);
 
     Boolean changeUser(User newUser);
 
