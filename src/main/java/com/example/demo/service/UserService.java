@@ -11,17 +11,17 @@ import java.util.List;
  * 创建于 2020/9/17
  */
 public interface UserService {
-    List<User> listAllUser() throws Exception;
+    List<User> listAllUser();
 
-    Boolean addUser(User user) throws Exception;
+    Boolean addUser(User user);
 
     Boolean importUsers(InputStream inputStream, String filename) throws Exception;
 
-    Boolean delUser(int id) throws Exception;
+    Boolean delUser(int id);
 
     Boolean delUserList(List idls) throws Exception;
 
-    Boolean changeUser(User newUser) throws Exception;
+    Boolean changeUser(User newUser);
 
     Boolean disabledUser(List id, Boolean open) throws Exception;
 
@@ -29,7 +29,7 @@ public interface UserService {
 
     User loginUser(String name, String pass) throws Exception;
 
-    User getUserById(int id) throws Exception;
+    User getUserById(int id);
 
     List<User> findUserByName(String name, Boolean islike) throws Exception;
 

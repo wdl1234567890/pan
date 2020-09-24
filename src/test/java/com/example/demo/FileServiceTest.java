@@ -14,7 +14,7 @@ import com.obs.services.model.PostSignatureResponse;
 
 @SpringBootTest
 class FileServiceTest {
-	
+
 	@Autowired
 	FileService fileService;
 
@@ -34,7 +34,7 @@ class FileServiceTest {
 			fileService.createDir(file , 1);
 			pre = file.getId();
 		}
-		
+
 	}
 
 	@Test
@@ -62,10 +62,10 @@ class FileServiceTest {
 		file.setId(18);
 		fileService.renameFileOrDir(file, "新名称3", 2);
 	}
-	
+
 	@Test
 	void testGetFileListByParentId() {
-		
+
 		List<File> files = fileService.getDirAndFileListByParentId(16, 1);
 		System.out.println(files);
 	}

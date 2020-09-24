@@ -1,5 +1,7 @@
 package com.example.demo.utils;
 
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.InputStream;
@@ -25,7 +27,7 @@ public class ExcelUtil {
 
         // 判断文件后缀格式
         if(!filename.endsWith(".xlsx")){
-            throw new Exception("文档格式不正确");
+            throw new PanException(StatusCode.FILE_FORMAT_ERROR.code(),StatusCode.FILE_FORMAT_ERROR.message());
         }
 
         // 读取EXCEL文件
@@ -33,7 +35,7 @@ public class ExcelUtil {
         try{
             sheets = WorkbookFactory.create(inputStream);
         }catch (Exception e){
-            throw new Exception("文件读取失败");
+            throw new PanException(StatusCode.FILE_READ_ERROR.code(),StatusCode.FILE_READ_ERROR.message());
         }
 
         // 获取EXCEL第一页
@@ -44,12 +46,12 @@ public class ExcelUtil {
 
         // 判断文件是否为空
         if(physicalNumberOfRows == 0){
-            throw new Exception("文件内容为空");
+            throw new PanException(StatusCode.FILE_IS_EMPTY.code(),StatusCode.FILE_IS_EMPTY.message());
         }
 
         // 判断行数是否为1
         if(physicalNumberOfRows<=1){
-            throw new Exception("员工数量不能为空");
+            throw new PanException(StatusCode.USER_IS_EMPTY.code(),StatusCode.USER_IS_EMPTY.message());
         }
 
         // 获取头部（第一行）
@@ -60,13 +62,13 @@ public class ExcelUtil {
 
         // 判断头部长度是否与模板对应
         if(headers.length!=physicalNumberOfCells){
-            throw new Exception("文档格式不正确");
+            throw new PanException(StatusCode.FILE_FORMAT_ERROR.code(),StatusCode.FILE_FORMAT_ERROR.message());
         }
 
         // 对头部进行校验
         for (int i=0;i<physicalNumberOfCells;i++){
             if(!headersStr[i].equals(firstRow.getCell(i).toString())){
-                throw new Exception("文档格式不正确");
+                throw new PanException(StatusCode.FILE_FORMAT_ERROR.code(),StatusCode.FILE_FORMAT_ERROR.message());
             }
         }
 
@@ -87,7 +89,7 @@ public class ExcelUtil {
 
                 // 判断是否存在未填项
                 if("".equals(row.getCell(j).toString())){
-                    throw new Exception("第"+(i+1)+"行，存在未填项");
+                    throw new PanException(StatusCode.CONTENT_HAVE_EMPTY.code(), "第"+(i+1)+"行，存在未填项");
                 }
 
                 // 校验电子邮箱合理性
@@ -96,7 +98,7 @@ public class ExcelUtil {
                     list.add(mail);
                     set.add(mail);
                     if(list.size()!=set.size()){
-                        throw new Exception("第"+(i+1)+"行，电子邮箱重复");
+                        throw new PanException(StatusCode.MAIL_IS_EXISTED.code(), "第"+(i+1)+"行，电子邮箱重复");
                     }
                 }
 
@@ -106,10 +108,10 @@ public class ExcelUtil {
                     list.add(phone);
                     set.add(phone);
                     if(list.size()!=set.size()){
-                        throw new Exception("第"+(i+1)+"行，电话号码重复");
+                        throw new PanException(StatusCode.PHONE_IS_EXISTED.code(), "第"+(i+1)+"行，电子邮箱重复");
                     }
                     if(phone.length()!=11){
-                        throw new Exception("第"+(i+1)+"行，电话号码格式错误");
+                        throw new PanException(StatusCode.PHONE_FORMAT_ERROR.code(),"第"+(i+1)+"行，电话号码格式错误");
                     }
                 }
             }

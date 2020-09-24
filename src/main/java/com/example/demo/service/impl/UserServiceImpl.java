@@ -2,15 +2,15 @@ package com.example.demo.service.impl;
 
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserExample;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.mapper.UserMapper;
-import com.example.demo.domain.User;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +26,35 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+
+    boolean isRepeat(User user){
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria1 = userExample.createCriteria();
+        criteria1.andMailEqualTo(user.getMail());
+        UserExample.Criteria criteria2 = userExample.createCriteria();
+        criteria2.andPhoneEqualTo(user.getPhone());
+        userExample.or(criteria2);
+        List<User> users = userMapper.selectByExample(userExample);
+        if (users.size()!=0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
     /**
      * 查询所有用户
      * @return List<User> 用户列表
      * @throws Exception
      */
     @Override
-    public List<User> listAllUser() throws Exception {
+    public List<User> listAllUser(){
         List<User> list;
         try{
             list = userMapper.selectByExample(new UserExample());
         }catch (Exception e){
-            throw new Exception("查询失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
         return list;
     }
@@ -49,13 +66,11 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public Boolean addUser(User user) throws Exception {
+    public Boolean addUser(User user){
+        if (isRepeat(user)) throw new PanException(StatusCode.MAIL_OR_PHONE_IS_EXISTED.code(),StatusCode.MAIL_OR_PHONE_IS_EXISTED.message());
         int insert = userMapper.insert(user);
-        if(insert==1){
-            return true;
-        }else{
-            return false;
-        }
+        if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        return true;
     }
 
     /**
@@ -81,11 +96,10 @@ public class UserServiceImpl implements UserService {
             users.add(user);
         }
         try{
-            for (User user : users) {
-                userMapper.insert(user);
-            }
+            int bath = userMapper.insertBath(users);
+            if(bath!=users.size()) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }catch (Exception e){
-            throw new Exception("插入失败！");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
         return true;
     }
@@ -97,16 +111,14 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public Boolean delUser(int id) throws Exception {
-        UserExample userExample = new UserExample();
-        UserExample.Criteria criteria = userExample.createCriteria();
-        criteria.andIdEqualTo(id);
-        int delete = userMapper.deleteByExample(userExample);
-        if(delete==1){
-            return true;
-        }else{
-            return false;
+    public Boolean delUser(int id){
+        try{
+            int delete = userMapper.deleteByPrimaryKey(id);
+            if(1!=delete) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }catch (Exception e){
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return true;
     }
 
     /**
@@ -121,12 +133,13 @@ public class UserServiceImpl implements UserService {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
         criteria.andIdIn(idls);
-        int delete = userMapper.deleteByExample(userExample);
-        if(delete==idls.size()){
-            return true;
-        }else{
-            throw new Exception("删除失败");
+        try{
+            int delete = userMapper.deleteByExample(userExample);
+            if(delete!=idls.size())throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }catch (Exception e){
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return true;
     }
 
     /**
@@ -136,10 +149,14 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public Boolean changeUser(User newUser) throws Exception {
-        UserExample userExample = new UserExample();
-        userMapper.updateByExample(newUser,userExample);
-        return null;
+    public Boolean changeUser(User newUser){
+        try{
+            int update = userMapper.updateByPrimaryKey(newUser);
+            if(1!=update)throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }catch (Exception e){
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }
+        return true;
     }
 
     /**
@@ -185,12 +202,15 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public User getUserById(int id) throws Exception {
-        UserExample userExample = new UserExample();
-        UserExample.Criteria criteria = userExample.createCriteria();
-        criteria.andIdEqualTo(id);
-        List<User> users = userMapper.selectByExample(userExample);
-        return users.get(0);
+    public User getUserById(int id){
+        User user;
+        try {
+            user = userMapper.selectByPrimaryKey(id);
+            if(user==null) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }catch (Exception e){
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+        }
+        return user;
     }
 
     /**

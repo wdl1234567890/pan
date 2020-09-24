@@ -2,6 +2,8 @@ package com.example.demo.service.impl;
 
 import com.example.demo.domain.Department;
 import com.example.demo.domain.DepartmentExample;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.mapper.DepartmentMapper;
 import com.example.demo.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,14 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public List<Department> listAllDepartment() throws Exception {
+    public List<Department> listAllDepartment() {
+        List<Department> list;
         try {
-            List<Department> list = departmentMapper.selectByExample(new DepartmentExample());
-            return list;
+             list = departmentMapper.selectByExample(new DepartmentExample());
         }catch (Exception e){
-            throw new Exception("查询失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return list;
     }
 
     /**
@@ -41,17 +44,14 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public Boolean addDepartment(Department department) throws Exception {
+    public Boolean addDepartment(Department department){
         try {
             int insert = departmentMapper.insert(department);
-            if(insert==1){
-                return true;
-            }else{
-                return false;
-            }
+            if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }catch (Exception e){
-            throw new Exception("插入失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return true;
     }
 
     /**
@@ -61,17 +61,14 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public Boolean changeDepartment(Department department) throws Exception {
+    public Boolean changeDepartment(Department department) {
         try{
             int update = departmentMapper.updateByExample(department, new DepartmentExample());
-            if(update==1){
-                return true;
-            }else{
-                return false;
-            }
+            if(1!=update) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }catch (Exception e){
-            throw new Exception("修改失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return true;
     }
 
     /**
@@ -81,17 +78,14 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public Boolean delDepartment(Integer id) throws Exception {
+    public Boolean delDepartment(Integer id) {
         try{
             int delete = departmentMapper.deleteByPrimaryKey(id);
-            if(delete==1){
-                return true;
-            }else{
-                return false;
-            }
+            if(1!=delete) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }catch (Exception e){
-            throw new Exception("删除失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
+        return true;
     }
 
     /**
@@ -101,7 +95,7 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public Integer countUserByDepartment(Integer id) throws Exception {
+    public Integer countUserByDepartment(Integer id) {
         return null;
     }
 
@@ -112,12 +106,12 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @throws Exception
      */
     @Override
-    public Department findDepartmentById(Integer id) throws Exception {
+    public Department findDepartmentById(Integer id){
         try{
             Department department = departmentMapper.selectByPrimaryKey(id);
             return department;
         }catch (Exception e){
-            throw new Exception("查询失败");
+            throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
     }
 }

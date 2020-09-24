@@ -98,4 +98,6 @@ public interface UserMapper {
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
     int updateByPrimaryKey(User record);
+
+    int insertBath(@Param("users") List<User> users);
 }

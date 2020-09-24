@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -33,6 +35,7 @@ public class User implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
+    @JsonIgnore
     private String pwd;
 
     /**
