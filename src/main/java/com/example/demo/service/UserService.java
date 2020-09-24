@@ -19,7 +19,7 @@ public interface UserService {
 
     Boolean delUser(int id);
 
-    Boolean delUserList(List idls) throws Exception;
+    Boolean delUserList(List<Integer> idls) throws Exception;
 
     Boolean changeUser(User newUser);
 

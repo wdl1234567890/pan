@@ -108,7 +108,7 @@ public class ExcelUtil {
                     list.add(phone);
                     set.add(phone);
                     if(list.size()!=set.size()){
-                        throw new PanException(StatusCode.PHONE_IS_EXISTED.code(), "第"+(i+1)+"行，电子邮箱重复");
+                        throw new PanException(StatusCode.PHONE_IS_EXISTED.code(), "第"+(i+1)+"行，电话号码重复");
                     }
                     if(phone.length()!=11){
                         throw new PanException(StatusCode.PHONE_FORMAT_ERROR.code(),"第"+(i+1)+"行，电话号码格式错误");

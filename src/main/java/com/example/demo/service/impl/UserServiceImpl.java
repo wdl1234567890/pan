@@ -96,8 +96,10 @@ public class UserServiceImpl implements UserService {
             users.add(user);
         }
         try{
-            int bath = userMapper.insertBath(users);
-            if(bath!=users.size()) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+            for (User user : users) {
+                int insert = userMapper.insert(user);
+                if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
+            }
         }catch (Exception e){
             throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
@@ -129,7 +131,7 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public Boolean delUserList(List idls) throws Exception {
+    public Boolean delUserList(List<Integer> idls) throws Exception {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
         criteria.andIdIn(idls);
