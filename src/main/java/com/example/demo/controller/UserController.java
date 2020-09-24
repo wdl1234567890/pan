@@ -45,7 +45,7 @@ public class UserController {
             if(userService.importUsers(multipartFile.getInputStream(),multipartFile.getOriginalFilename())){
                 return JsonData.buildSuccess("导入成功");
             }else{
-                return JsonData.buildError(20000,"导入失败");
+                return JsonData.buildError();
             }
         }catch (Exception e){
             return JsonData.buildError(20000,e.getMessage());
@@ -66,10 +66,10 @@ public class UserController {
             if(userService.delUserList(idls)){
                 return JsonData.buildSuccess("删除成功");
             }else{
-                return JsonData.buildError(20000,"删除失败");
+                return JsonData.buildError();
             }
         }catch (Exception e){
-            return JsonData.buildError(20000,e.getMessage());
+            return JsonData.buildError();
         }
     }
 
