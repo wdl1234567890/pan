@@ -106,4 +106,13 @@ public class Department implements Serializable {
     public void setLead(String lead) {
         this.lead = lead == null ? null : lead.trim();
     }
+
+    @Override
+    public String toString() {
+        return "Department{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lead='" + lead + '\'' +
+                '}';
+    }
 }

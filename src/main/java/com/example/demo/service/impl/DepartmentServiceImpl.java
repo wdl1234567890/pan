@@ -63,7 +63,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Boolean changeDepartment(Department department) {
         try{
-            int update = departmentMapper.updateByExample(department, new DepartmentExample());
+            int update = departmentMapper.updateByPrimaryKey(department);
             if(1!=update) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }catch (Exception e){
             throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
