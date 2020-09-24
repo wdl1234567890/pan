@@ -21,7 +21,7 @@ public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**");
+		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pub/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 

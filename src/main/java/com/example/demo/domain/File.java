@@ -82,8 +82,6 @@ public class File implements Serializable {
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
     
-    @NotBlank(message = "objectName不能为空", groups = Group.CreateFile.class)
-    @Size(message="objectName允许的长度为1~100", min=1, max=100, groups = Group.CreateFile.class)
     private String objectName;
 
     /**

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -203,6 +205,7 @@ public class FileServiceImpl implements FileService{
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
 		file.setType(FileType.USER_FILE.value());
+		file.setObjectName(UUID.randomUUID().toString().replaceAll("-", ""));
 		
 		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		

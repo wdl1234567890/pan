@@ -41,6 +41,7 @@ public class ObsServiceImpi implements ObsService{
 	
 	@Override
 	public PostSignatureResponse getPostSignature() {
+	    this.createObsClicent();
 		PostSignatureRequest request = new PostSignatureRequest();
 
 		// 设置上传文件的大小
@@ -49,8 +50,9 @@ public class ObsServiceImpi implements ObsService{
 		request.setFormParams(formParams);
 		
 		request.setExpires(expires);
-		return obsClient.createPostSignature(request);
-		
+		PostSignatureResponse createPostSignature = obsClient.createPostSignature(request);
+		this.closeObsClient();
+		return createPostSignature;
 	}
 
 	@Override

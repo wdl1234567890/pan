@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.File;
 import com.obs.services.exception.ObsException;
 import com.obs.services.model.PostSignatureResponse;
 
