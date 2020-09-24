@@ -1,19 +1,5 @@
-/**  
-
-* @Title: 
-
-* @Description: (这里用一句话描述这个方法的作用)  
-
-* @param    参数  
-
-* @return    返回类型  
-
-* @throws  
-
-*/
 package com.example.demo.service.impl;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,9 +7,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.service.LoginService;
+import com.example.demo.vo.UserTokenVo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.demo.domain.User;
-import com.example.demo.domain.UserExample;
+
 import com.example.demo.domain.UserLog;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.mapper.UserMapper;
 
 import redis.clients.jedis.Jedis;
@@ -69,7 +59,28 @@ public class LoginServiceImpl implements LoginService {
 		}
 	}
 
-	
+	/**
+	 * 
+	 * @Title getUser
+	 * @Description 通过token从缓存里获得User
+	 * @param token
+	 * @see com.example.demo.service.LoginService#getUser(java.lang.String)
+	 */
+	@Override
+	public User getUser(String token) {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		Jedis jedis = jedisPool.getResource();
+		String tokenValue = jedis.get(token);
+		
+		UserTokenVo tokenVo = null;
+		try {
+			tokenVo = mapper.readValue(tokenValue, UserTokenVo.class);
+		} catch (Exception e) {
+			throw new PanException(StatusCode.REDIS_ERROR.code(), e.getMessage());
+		}
+		return tokenVo.getUser();
+	}
 
 	/**
 	 * @Title: pwdToMail
@@ -97,6 +108,7 @@ public class LoginServiceImpl implements LoginService {
         System.out.println(msg);
         //发送成功则返回null
         return null;
+
 	}
 
 }

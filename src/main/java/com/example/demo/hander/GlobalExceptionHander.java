@@ -115,6 +115,7 @@ public class GlobalExceptionHander {
 		}else {
 			code = StatusCode.SERVER_ERROR.code();
 			message = StatusCode.SERVER_ERROR.message();
+			//message = ex.getMessage();
 		}
 		return JsonData.buildError(code, message);
 	}

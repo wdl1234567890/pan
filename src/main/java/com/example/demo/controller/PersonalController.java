@@ -22,9 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.service.LoginService;
 import com.example.demo.service.PersonalService;
 import com.example.demo.domain.User;
+import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
-import com.example.demo.utils.JsonData;
-import com.example.demo.utils.LoginData;
+import com.example.demo.vo.JsonData;
+import com.example.demo.vo.LoginData;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -63,7 +64,7 @@ public class PersonalController {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return JsonData.buildCustom(-3, "", "手机修改异常");
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), "手机修改异常");
 		}
 		return JsonData.buildSuccess(user);
 	}
@@ -90,11 +91,11 @@ public class PersonalController {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return JsonData.buildCustom(-3, "", "密码修改异常");
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), "密码修改异常");
 		}
 		//如果返回信息不为空说明修改失败，返回错误信息
 		if(message!=null) {
-			return JsonData.buildError(message);
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), message);
 		}else {
 			//若返回信息为空则修改密码成功
 			//需要修改redis服务器token信息使用户退出登陆
@@ -118,7 +119,7 @@ public class PersonalController {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return JsonData.buildCustom(-3, "", "登出异常");
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), "登出异常");
 		}
 		return JsonData.buildSuccess("登出成功");
 	}

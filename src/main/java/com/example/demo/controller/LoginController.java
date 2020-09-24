@@ -1,16 +1,3 @@
-/**  
-
-* @Title: 
-
-* @Description: (这里用一句话描述这个方法的作用)  
-
-* @param    参数  
-
-* @return    返回类型  
-
-* @throws  
-
-*/
 package com.example.demo.controller;
 
 import java.util.UUID;
@@ -18,18 +5,16 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.LoginService;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserLog;
-import com.example.demo.exception.PanException;
-import com.example.demo.service.UserService;
-import com.example.demo.utils.JsonData;
-import com.example.demo.utils.LoginData;
-import com.example.demo.utils.UserTokenVo;
+import com.example.demo.enums.StatusCode;
+import com.example.demo.vo.JsonData;
+import com.example.demo.vo.LoginData;
+import com.example.demo.vo.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import redis.clients.jedis.Jedis;
@@ -136,12 +121,12 @@ public class LoginController {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return JsonData.buildCustom(-3, "", "密码找回异常");
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), "密码找回异常");
 		}
 		if(message==null) {
 			return JsonData.buildSuccess("密码找回成功，请查看你的邮箱");
 		}else {
-			return JsonData.buildError(message);
+			return JsonData.buildError(StatusCode.DEFAULT_ERROR.code(), message);
 		}
 	}
 	
@@ -152,6 +137,7 @@ public class LoginController {
 		       }
 		   }
 		   return true;
+
 	}
 
 }

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -74,9 +76,9 @@ public class FileServiceImpl implements FileService{
 	 * @Title isRepeat
 	 * @Description 描述这个方法的作用
 	 * @param file 需要判断是否重复的文件参数
-	 * @return 重复返回true,不重复返回false
+	 * @return 重复返回重复的文件,不重复返回null
 	 */
-	private boolean isRepeat(File file) {
+	private File isRepeat(File file) {
 		
 		FileExample fileExample = new FileExample();
 		Criteria criteria = fileExample.createCriteria();
@@ -84,8 +86,8 @@ public class FileServiceImpl implements FileService{
 		//在创建者的某个父文件夹下查找是否有相同名称的file
 		criteria.andParentIdEqualTo(file.getParentId()).andNameEqualTo(file.getName()).andCreatorIdEqualTo(file.getCreatorId());
 		List<File> files = fileMapper.selectByExample(fileExample);
-		if(null == files || files.size() == 0)return false;
-		return true;
+		if(null == files || files.size() == 0)return null;
+		return files.get(0);
 	}
 	
 	
@@ -182,7 +184,7 @@ public class FileServiceImpl implements FileService{
 		file.setType(FileType.USER_DIR.value());
 		
 		//检测文件夹是否已经存在
-		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
+		if(isRepeat(file) != null)throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		
 		//判断是否已经到达新建文件夹的最大层数
 		if(isOverMaxLevel(file.getParentId(), maxLevel, userId))throw new PanException(StatusCode.IS_OVER_DIR_MAX_LEVEL.code(), StatusCode.IS_OVER_DIR_MAX_LEVEL.message());
@@ -202,9 +204,18 @@ public class FileServiceImpl implements FileService{
 		file.setCreateDay(new Date());
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
+		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().indexOf('.')));
 		file.setType(FileType.USER_FILE.value());
-		
-		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
+		File file2 = isRepeat(file);
+		if(file2 != null) {
+			obsService.createObsClicent();
+			obsService.deleteObsject(file2.getObjectName());
+			obsService.closeObsClient();
+			file2.setObjectName(file.getObjectName());
+			fileMapper.updateByPrimaryKey(file2);
+			file.setId(file2.getId());
+			return true;
+		}
 		
 		int result = fileMapper.insert(file);
 		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
@@ -214,22 +225,25 @@ public class FileServiceImpl implements FileService{
 
 	@Override
 	public String getDownloadUrl(Integer fileId, Integer userId) {
-		
+		obsService.createObsClicent();
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
-		return obsService.getObjectUrl(file.getObjectName());
+		String objectUrl = obsService.getObjectUrl(file.getObjectName());
+		obsService.closeObsClient();
+		return objectUrl;
 	}
 
 	@Override
 	@Transactional
 	public boolean batchRemoveFileAndDir(List<Integer> ids, Integer userId) {
-		
+		obsService.createObsClicent();
 		checkArgs(Arrays.asList(ids, userId), null, null);
 		
 		ids.stream().forEach(id->{
 			removeFileOrDir(id, userId);
 		});
 		
+		obsService.closeObsClient();
 		return true;
 	}
 
