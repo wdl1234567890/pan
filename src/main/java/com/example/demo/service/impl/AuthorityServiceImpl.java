@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.Authority;
@@ -18,6 +19,7 @@ import com.example.demo.service.AuthorityService;
 import com.example.demo.utils.FileTreeNodeUtils;
 import com.example.demo.utils.ToolUtils;
 
+@Service
 public class AuthorityServiceImpl implements AuthorityService{
 	
 	@Autowired

@@ -25,7 +25,7 @@ import com.example.demo.vo.JsonData;
 import com.obs.services.exception.ObsException;
 
 /**
- * 
+ *
  * @ClassName GlobalExceptionHander
  * @Description 全局异常处理
  * @author fuling
@@ -33,9 +33,9 @@ import com.obs.services.exception.ObsException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHander {
-	
+
 	/**
-	 * 
+	 *
 	 * @Title handerPanException
 	 * @Description 处理自定义异常
 	 * @param ex 异常
@@ -45,9 +45,9 @@ public class GlobalExceptionHander {
 	public JsonData handerPanException(PanException ex) {
 		return JsonData.buildError(ex.getCode(), ex.getMessage());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @Title handlerValidateException
 	 * @Description 处理jsr参数校验不通过的方法
 	 * @param ex
@@ -74,13 +74,13 @@ public class GlobalExceptionHander {
 		result.getFieldErrors().forEach(error -> {
 			errorMap.put(error.getField(), error.getDefaultMessage());
 		});
-		
+
 		return JsonData.buildError(StatusCode.PARAM_VALIDATE_FAILED.code(), errorMap);
 
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @Title handerObsException
 	 * @Description 处理obs异常
 	 * @param ex 异常
@@ -90,10 +90,10 @@ public class GlobalExceptionHander {
 	public JsonData handerObsException(ObsException ex) {
 		return JsonData.buildError(StatusCode.OBS_ERROR.code(), ex.getErrorMessage());
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @Title defaultHander
 	 * @Description 默认错误处理（用来处理http异常以及其他异常）
 	 * @param request 请求
@@ -104,8 +104,8 @@ public class GlobalExceptionHander {
 	public JsonData defaultHander(Exception ex) {
 		Integer code = null;
 		String message = null;
-	
-		if(ex instanceof NoHandlerFoundException 
+
+		if(ex instanceof NoHandlerFoundException
 				|| ex instanceof HttpRequestMethodNotSupportedException
 				|| ex instanceof IllegalStateException
 				|| ex instanceof MethodArgumentTypeMismatchException
@@ -118,6 +118,6 @@ public class GlobalExceptionHander {
 		}
 		return JsonData.buildError(code, message);
 	}
-	
-	
+
+
 }

@@ -1,5 +1,8 @@
 package com.example.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -33,6 +36,7 @@ public class User implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
+    @JsonIgnore
     private String pwd;
 
     /**
@@ -147,6 +151,7 @@ public class User implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
+    @JsonIgnore
     public String getPwd() {
         return pwd;
     }
@@ -159,6 +164,7 @@ public class User implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
+    @JsonProperty
     public void setPwd(String pwd) {
         this.pwd = pwd == null ? null : pwd.trim();
     }

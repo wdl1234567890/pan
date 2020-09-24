@@ -13,7 +13,7 @@ import com.example.demo.service.FileService;
 
 @SpringBootTest
 class FileServiceTest {
-	
+
 	@Autowired
 	FileService fileService;
 
@@ -27,7 +27,7 @@ class FileServiceTest {
 			fileService.createDir(file , 1);
 			pre = file.getId();
 		}
-		
+
 	}
 
 	@Test
@@ -56,10 +56,10 @@ class FileServiceTest {
 		file.setName("newName");
 		fileService.renameFileOrDir(file, 2);
 	}
-	
+
 	@Test
 	void testGetFileListByParentId() {
-		
+
 		List<File> files = fileService.getDirAndFileListByParentId(16, 1);
 		System.out.println(files);
 	}

@@ -10,14 +10,16 @@ import java.util.List;
  */
 public interface DepartmentService {
 
-    List<Department> listAllDepartment() throws Exception;
+    List<Department> listAllDepartment();
 
-    Boolean addDepartment(Department department) throws Exception;
+    Boolean addDepartment(Department department);
 
-    Boolean changeDepartment(Department department) throws Exception;
+    Boolean changeDepartment(Department department);
 
-    Boolean delDepartment(Integer id) throws Exception;
+    Boolean delDepartment(Integer id);
 
-    Integer countUserByDepartment(Integer id) throws Exception;
+    Integer countUserByDepartment(Integer id);
+
+    Department findDepartmentById(Integer id);
 
 }
