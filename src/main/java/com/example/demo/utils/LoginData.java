@@ -11,7 +11,7 @@
 * @throws  
 
 */  
-package com.example.demo.util;
+package com.example.demo.utils;
 
 /**
  * @author 白开水
