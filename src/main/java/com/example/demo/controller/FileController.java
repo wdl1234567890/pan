@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -75,11 +76,14 @@ public class FileController {
 	
 	@GetMapping("/upload/param")
 	public JsonData getUploadParam() {
+		obsService.createObsClicent();
 		PostSignatureResponse postSignature = obsService.getPostSignature();
+		obsService.closeObsClient();
 		Map<String, Object> data = new HashMap<>();
 		data.put("ak", ak);
 		data.put("policy", postSignature.getPolicy());
 		data.put("signature", postSignature.getSignature());
+		data.put("objectKey",UUID.randomUUID().toString().replaceAll("-", ""));
 		return JsonData.buildSuccess(data);
 	}
 	
