@@ -249,12 +249,10 @@ public class FileServiceImpl implements FileService{
 
 	@Override
 	public boolean renameFileOrDir(File file, Integer userId) {
-		
 		File file1 = checkArgs(Arrays.asList(file, file.getName(), userId), file.getId(), userId);
 		file1.setName(file.getName());
 		int result = fileMapper.updateByPrimaryKey(file1);
 		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
-		
 		return true;
 	}
 

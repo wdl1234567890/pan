@@ -114,8 +114,8 @@ public class GlobalExceptionHander {
 			message = StatusCode.CLIENT_ERROR.message();
 		}else {
 			code = StatusCode.SERVER_ERROR.code();
-			message = StatusCode.SERVER_ERROR.message();
-			//message = ex.getMessage();
+			//message = StatusCode.SERVER_ERROR.message();
+			message = ex.getMessage();
 		}
 		return JsonData.buildError(code, message);
 	}
