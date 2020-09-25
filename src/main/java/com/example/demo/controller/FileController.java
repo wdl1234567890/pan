@@ -57,9 +57,9 @@ public class FileController {
 	public JsonData createFile(@RequestBody @Validated(Group.CreateFile.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		fileService.createFile(file, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		fileService.createFile(file, userId);
 		Map<String, Integer> map = new HashMap<>();
 		map.put("fileId", file.getId());
 		return JsonData.buildSuccess(map);
@@ -69,9 +69,9 @@ public class FileController {
 	public JsonData createDir(@RequestBody @Validated(Group.CreateDir.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		fileService.createDir(file, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		fileService.createDir(file, userId);
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -95,9 +95,9 @@ public class FileController {
 		
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		fileService.batchRemoveFileAndDir(ids, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		fileService.batchRemoveFileAndDir(ids, userId);
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -105,9 +105,9 @@ public class FileController {
 	public JsonData renameDirOrFile(@RequestBody @Validated(Group.UpdateDirOrFile.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		fileService.renameFileOrDir(file, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		fileService.renameFileOrDir(file, userId);
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -116,9 +116,9 @@ public class FileController {
 	public JsonData getDownloadFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		String downloadUrl = fileService.getDownloadUrl(fileId, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		String downloadUrl = fileService.getDownloadUrl(fileId, userId);
 		Map<String,String> map = new HashMap<>();
 		map.put("downloadUrl", downloadUrl);
 		return JsonData.buildSuccess(map);
@@ -128,9 +128,9 @@ public class FileController {
 	public JsonData getShareFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		String shareUrl = fileService.getShareUrl(fileId, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		String shareUrl = fileService.getShareUrl(fileId, userId);
 		Map<String,String> map = new HashMap<>();
 		map.put("shareUrl", shareUrl);
 		return JsonData.buildSuccess(map);
@@ -142,10 +142,10 @@ public class FileController {
 		
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		List<File> files = fileService.getDirAndFileListByParentId(parentId, user.getId());
-		String path = fileService.getPathById(parentId, user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		List<File> files = fileService.getDirAndFileListByParentId(parentId, userId);
+		String path = fileService.getPathById(parentId, userId);
 		Map<String, Object> map = new HashMap<>();
 		map.put("path", path);
 		map.put("files", files);
@@ -158,9 +158,9 @@ public class FileController {
 	public JsonData getDirAndFileListByName(@RequestBody @Validated FileSearch fileSearch, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		User user = loginService.getUser(headers.get("token").get(0));
-		//Integer userId = 1;
-		List<Map<String, Object>> files = fileService.getDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), user.getId());
+		//User user = loginService.getUser(headers.get("token").get(0));
+		Integer userId = 1;
+		List<Map<String, Object>> files = fileService.getDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), userId);
 		return JsonData.buildSuccess(files);
 	}
 	
