@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.File;
@@ -34,7 +35,7 @@ import com.example.demo.vo.FileSearch;
 import com.example.demo.vo.JsonData;
 import com.obs.services.model.PostSignatureResponse;
 
-@CrossOrigin
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @RestController
 @Validated
 @RequestMapping("/api/v1/pri/file")

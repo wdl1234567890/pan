@@ -13,6 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
+	//解决跨域
+	@Bean
+	public CorsInterceptor corsInterceptor() {
+		return new CorsInterceptor();
+	}
+	
 	//实现注册拦截器的方法
 	@Bean
 	public LoginStateIntercepter loginStateInterceptor() {
@@ -21,7 +27,8 @@ public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/prii/**");
+		//registry.addInterceptor(corsInterceptor()).addPathPatterns("/**");
+		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 
