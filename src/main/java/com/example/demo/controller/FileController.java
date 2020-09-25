@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,7 @@ import com.example.demo.vo.FileSearch;
 import com.example.demo.vo.JsonData;
 import com.obs.services.model.PostSignatureResponse;
 
+@CrossOrigin
 @RestController
 @Validated
 @RequestMapping("/api/v1/pri/file")
