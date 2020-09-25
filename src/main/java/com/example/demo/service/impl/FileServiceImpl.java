@@ -61,7 +61,7 @@ public class FileServiceImpl implements FileService{
 			File file = fileMapper.selectByPrimaryKey(fileId);
 			if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
 			if(0 != fileId && null != userId) {
-				if(file.getCreatorId() != userId)throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+				if(!file.getCreatorId().equals(userId))throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 			}
 			return file;
 		}
