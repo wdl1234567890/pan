@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.io.InputStream;
+
 import com.obs.services.exception.ObsException;
 import com.obs.services.model.PostSignatureResponse;
 
@@ -25,14 +27,25 @@ public interface ObsService {
 	
 	/**
 	 * 
-	 * @Title getObjectUrl
-	 * @Description 获取obs对象的地址
+	 * @Title getObsObject
+	 * @Description 获取obs对象的流
 	 * @param objectKey 对象名
-	 * @return obs对象的地址
+	 * @return obs对象的流
 	 * @throws ObsException
 	 */
-	String getObjectUrl(String objectKey);
+	public InputStream getObsObject(String objectKey);
 	
+	
+	
+	/**
+	 * 
+	 * @Title getObsObjectShareUrl
+	 * @Description 获取obs对象的分享地址
+	 * @param objectKey obs对象名
+	 * @return obs对象的分享地址
+	 * @throws ObsException
+	 */
+	public String getObsObjectShareUrl(String objectKey);
 	
 	
 	/**

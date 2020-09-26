@@ -3,9 +3,11 @@ package com.example.demo.service;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.example.demo.domain.Authority;
 import com.example.demo.domain.File;
-import com.obs.services.model.PostSignatureResponse;
 
 public interface FileService {
 	
@@ -39,13 +41,14 @@ public interface FileService {
 	/**
 	 * 
 	 * @Title getDownloadUrl
-	 * @Description 获取下载文件的链接
-	 * @param 文件id
-	 * @param 用户id
-	 * @return 文件的下载链接
+	 * @Description 下载文件
+	 * @param fileId 文件id
+	 * @param userId 用户id
+	 * @param request 请求
+	 * @param response 响应
 	 * @throws RuntimeException
 	 */
-	String getDownloadUrl(Integer fileId, Integer userId);
+	void downloadFile(Integer fileId, Integer userId, HttpServletRequest request, HttpServletResponse response);
 	
 	
 	
