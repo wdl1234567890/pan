@@ -212,7 +212,7 @@ public class FileServiceImpl implements FileService{
 		file.setCreateDay(new Date());
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
-		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().indexOf('.')));
+		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().lastIndexOf('.')));
 		file.setType(FileType.USER_FILE.value());
 		File file2 = isRepeat(file);
 		if(file2 != null) {
