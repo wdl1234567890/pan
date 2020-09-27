@@ -1,11 +1,18 @@
 package com.example.demo.service.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +30,7 @@ import com.example.demo.mapper.FileMapper;
 import com.example.demo.service.FileService;
 import com.example.demo.service.ObsService;
 import com.example.demo.utils.FileTreeNodeUtils;
+
 
 
 @Service
@@ -204,7 +212,7 @@ public class FileServiceImpl implements FileService{
 		file.setCreateDay(new Date());
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
-		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().indexOf('.')));
+		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().lastIndexOf('.')));
 		file.setType(FileType.USER_FILE.value());
 		File file2 = isRepeat(file);
 		if(file2 != null) {
@@ -224,13 +232,49 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public String getDownloadUrl(Integer fileId, Integer userId) {
+	public void downloadFile(Integer fileId, Integer userId, HttpServletRequest request, HttpServletResponse response) {
 		obsService.createObsClicent();
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
-		String objectUrl = obsService.getObjectUrl(file.getObjectName());
-		obsService.closeObsClient();
-		return objectUrl;
+		InputStream inputStream = obsService.getObsObject(file.getObjectName());
+		BufferedOutputStream outputStream = null;
+		String fileName = file.getName();
+		try {
+			outputStream = new BufferedOutputStream(response.getOutputStream());
+			
+			// 为防止 文件名出现乱码
+            final String userAgent = request.getHeader("USER-AGENT");
+            // IE浏览器
+            if (userAgent.contains("MSIE")) {
+                fileName = URLEncoder.encode(fileName, "UTF-8");
+            } else {
+                // google,火狐浏览器
+                if (userAgent.contains("Mozilla")) {
+                    fileName = new String(fileName.getBytes(), "ISO8859-1");
+                } else {
+                    // 其他浏览器
+                    fileName = URLEncoder.encode(fileName, "UTF-8");
+                }
+            }
+			
+			//response.setContentType("application/x-download");
+			response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+			IOUtils.copy(inputStream, outputStream);
+		} catch (IOException e) {
+			throw new PanException(StatusCode.DEFAULT_ERROR.code(), e.getMessage());
+		}finally{
+			try {
+				outputStream.flush();
+				outputStream.close();
+				inputStream.close();
+			} catch (IOException e) {
+				throw new PanException(StatusCode.DEFAULT_ERROR.code(), e.getMessage());
+			}
+			obsService.closeObsClient();
+		}
+		
+
+		
 	}
 
 	@Override
@@ -258,8 +302,12 @@ public class FileServiceImpl implements FileService{
 
 	@Override
 	public String getShareUrl(Integer fileId, Integer userId) {
-		
-		return getDownloadUrl(fileId, userId);
+		obsService.createObsClicent();
+		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
+		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+		String objectUrl = obsService.getObsObjectShareUrl(file.getObjectName());
+		obsService.closeObsClient();
+		return objectUrl;
 	}
 
 	@Override

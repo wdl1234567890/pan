@@ -11,6 +11,12 @@ public enum StatusCode {
 	
 	DEFAULT_ERROR(10000, "默认错误代码"),
 	
+	ILLEGAL_ACCESS(10001, "非法访问"),
+	
+	LOGIN_TIME_OUT(10002, "登陆超时"),
+	
+	LOGIN_RETRY(10003, "请重新登陆"),
+	
 	SUCCESS(20000, "成功"),
 	
 	PARAM_IS_EMPTY(30001, "参数不能为空"),

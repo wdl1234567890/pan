@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -114,15 +116,13 @@ public class FileController {
 	
 	
 	@GetMapping("/{id}")
-	public JsonData getDownloadFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
+	public JsonData getDownloadFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers, HttpServletRequest request,  HttpServletResponse response) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
 		User user = loginService.getUser(headers.get("token").get(0));
 		//Integer userId = 1;
-		String downloadUrl = fileService.getDownloadUrl(fileId, user.getId());
-		Map<String,String> map = new HashMap<>();
-		map.put("downloadUrl", downloadUrl);
-		return JsonData.buildSuccess(map);
+		fileService.downloadFile(fileId, user.getId(), request, response);
+		return JsonData.buildSuccess(null);
 	}
 	
 	@GetMapping("/share/{id}")
@@ -155,7 +155,7 @@ public class FileController {
 	}
 	
 	
-	@GetMapping("/list/search")
+	@PostMapping("/list/search")
 	public JsonData getDirAndFileListByName(@RequestBody @Validated FileSearch fileSearch, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息

@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
+	
 	//实现注册拦截器的方法
 	@Bean
 	public LoginStateIntercepter loginStateInterceptor() {

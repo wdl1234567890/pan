@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-
+import com.example.demo.enums.StatusCode;
 import com.example.demo.vo.JsonData;
 import com.example.demo.vo.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +27,7 @@ public class LoginStateIntercepter implements HandlerInterceptor{
 			throws Exception {
 		String token = request.getHeader("token");
 		if(token==null) {
-			this.renderJson(response, JsonData.buildError(-2, "非法访问"));
+			this.renderJson(response, JsonData.buildError(StatusCode.ILLEGAL_ACCESS.code(), StatusCode.ILLEGAL_ACCESS.message()));
 			return false;
 		}
 		
@@ -38,14 +38,14 @@ public class LoginStateIntercepter implements HandlerInterceptor{
 		
 		//检测token是否为空
 		if(tokenValue==null) {
-			this.renderJson(response, JsonData.buildError(-3, "请重新登陆"));
+			this.renderJson(response, JsonData.buildError(StatusCode.LOGIN_RETRY.code(), StatusCode.LOGIN_RETRY.message()));
 			jedis.close();
 			return false;
 		}
 		//检测有效时间（>=0或为-1）
 		Long ttl = jedis.ttl(token);
 		if(ttl<-1) {
-			this.renderJson(response, JsonData.buildError(-4, "登陆超时"));
+			this.renderJson(response, JsonData.buildError(StatusCode.LOGIN_TIME_OUT.code(), StatusCode.LOGIN_TIME_OUT.message()));
 			jedis.close();
 			return false;
 		}

@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import com.example.demo.service.ObsService;
 import com.obs.services.ObsClient;
 import com.obs.services.model.DeleteObjectResult;
 import com.obs.services.model.HttpMethodEnum;
+import com.obs.services.model.ObsObject;
 import com.obs.services.model.PostSignatureRequest;
 import com.obs.services.model.PostSignatureResponse;
 import com.obs.services.model.TemporarySignatureRequest;
@@ -42,27 +44,23 @@ public class ObsServiceImpi implements ObsService{
 	@Override
 	public PostSignatureResponse getPostSignature() {
 		PostSignatureRequest request = new PostSignatureRequest();
-
-		// 设置上传文件的大小
-		Map<String, Object> formParams = new HashMap<String, Object>();
-		formParams.put("content-length", 30 * 1024 * 1024L);
-		request.setFormParams(formParams);
-		
 		request.setExpires(expires);
+//		Map<String, Object> formParams = new HashMap<>();
+//		formParams.put("content-range", 1024L);
+//		request.setFormParams(formParams);
 		PostSignatureResponse createPostSignature = obsClient.createPostSignature(request);
 		return createPostSignature;
 	}
 
 	@Override
-	public String getObjectUrl(String objectKey) {
+	public InputStream getObsObject(String objectKey) {
 		
-		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
-		request.setBucketName(bucketName);
-		request.setObjectKey(objectKey);
-
-		TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
-		return response.getSignedUrl();
+		ObsObject obsObject = obsClient.getObject(bucketName, objectKey);
+		return obsObject.getObjectContent();
 	}
+	
+	
+	
 	
 	
 
@@ -81,6 +79,18 @@ public class ObsServiceImpi implements ObsService{
 		} catch (IOException e) {
 			throw new PanException(StatusCode.OBS_ERROR.code(), e.getMessage());
 		}
+	}
+
+	@Override
+	public String getObsObjectShareUrl(String objectKey) {
+		
+		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
+		request.setBucketName(bucketName);
+		request.setObjectKey(objectKey);
+		
+		TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
+		return response.getSignedUrl();
+		
 	}
 	
 	

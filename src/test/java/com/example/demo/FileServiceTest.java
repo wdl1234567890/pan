@@ -38,11 +38,11 @@ class FileServiceTest {
 		fileService.createFile(file , 1);
 	}
 
-	@Test
-	void testGetDownloadUrl() {
-		String downloadUrl = fileService.getDownloadUrl(18, 1);
-		System.out.println(downloadUrl);
-	}
+//	@Test
+//	void testGetDownloadUrl() {
+//		String downloadUrl = fileService.getDownloadUrl(18, 1);
+//		System.out.println(downloadUrl);
+//	}
 
 	@Test
 	void testBatchRemoveFileAndDir() {
