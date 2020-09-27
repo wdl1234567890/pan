@@ -2,7 +2,8 @@ package com.example.demo.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,9 @@ public class ObsServiceImpi implements ObsService{
 	public PostSignatureResponse getPostSignature() {
 		PostSignatureRequest request = new PostSignatureRequest();
 		request.setExpires(expires);
+//		Map<String, Object> formParams = new HashMap<>();
+//		formParams.put("content-range", 1024L);
+//		request.setFormParams(formParams);
 		PostSignatureResponse createPostSignature = obsClient.createPostSignature(request);
 		return createPostSignature;
 	}
