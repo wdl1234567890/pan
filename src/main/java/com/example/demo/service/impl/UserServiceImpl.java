@@ -1,12 +1,19 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.domain.Department;
+import com.example.demo.domain.PageResult;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserExample;
 import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
+import com.example.demo.mapper.DepartmentMapper;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.ExcelUtil;
+import com.example.demo.utils.PageRequest;
+import com.example.demo.utils.PageUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author GooRay
@@ -25,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private DepartmentMapper departmentMapper;
 
 
     boolean isRepeat(User user){
@@ -82,8 +93,8 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public Boolean importUsers(InputStream inputStream,String filename){
-        List<Map<String, Object>> list = ExcelUtil.ReadExcel(inputStream,filename);
+    public Boolean importUsers(InputStream inputStream,String filename,List<Department> departments){
+        List<Map<String, Object>> list = ExcelUtil.ReadExcel(inputStream,filename,departments);
         List<User> users = new ArrayList<>();
         for (Map<String, Object> map : list) {
             User user = new User();
@@ -97,6 +108,7 @@ public class UserServiceImpl implements UserService {
         }
         try{
             for (User user : users) {
+                if(isRepeat(user)) throw new PanException(StatusCode.MAIL_OR_PHONE_IS_EXISTED.code(),StatusCode.MAIL_OR_PHONE_IS_EXISTED.message());
                 int insert = userMapper.insert(user);
                 if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
             }
@@ -236,5 +248,53 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findUserByDepartment(String department) throws Exception {
         return null;
+    }
+
+    @Override
+    public PageResult findPage(PageRequest pageRequest,User user) {
+        return PageUtils.getPageResult(pageRequest, getPageInfo(pageRequest,user));
+    }
+
+    /**
+     * 调用分页插件完成分页
+     * @param
+     * @return
+     */
+    private PageInfo<User> getPageInfo(PageRequest pageRequest,User userExample) {
+        int pageNum = pageRequest.getPageNum();
+        int pageSize = pageRequest.getPageSize();
+        PageHelper.startPage(pageNum, pageSize);
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        if(userExample.getName()!=null&&!"null".equals(userExample.getName())){
+            criteria.andNameLike("%"+userExample.getName()+"%");
+        }
+        if(userExample.getMail()!=null&&!"null".equals(userExample.getMail())){
+            criteria.andMailLike("%"+userExample.getMail()+"%");
+        }
+        if(userExample.getPhone()!=null&&!"null".equals(userExample.getPhone())){
+            criteria.andPhoneLike("%"+userExample.getPhone()+"%");
+        }
+        if(userExample.getDepartment()!=null){
+            criteria.andDepartmentEqualTo(userExample.getDepartment());
+        }
+        if(userExample.getLevel()!=null){
+            criteria.andLevelEqualTo(userExample.getLevel());
+        }
+
+        List<User> users = userMapper.selectByExample(example);
+        for (User user : users) {
+            Department department = departmentMapper.selectByPrimaryKey(user.getDepartment());
+            user.setDepartmentStr(department.getName());
+            if(user.getLevel()==0){
+                user.setLevelStr("普通用户");
+            }else if(user.getLevel()==1){
+                user.setLevelStr("管理员");
+            }else if(user.getLevel()==2){
+                user.setLevelStr("超级管理员");
+            }
+        }
+
+        return new PageInfo<User>(users);
     }
 }

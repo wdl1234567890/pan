@@ -323,4 +323,10 @@
       #{user.mail}, #{user.phone}, #{user.level})
     </foreach>
   </insert>
+
+  <select id="countByDepartment"  resultType="Integer" parameterType="Integer">
+    select count(id)
+    from user
+    where department = #{department}
+  </select>
 </mapper>
