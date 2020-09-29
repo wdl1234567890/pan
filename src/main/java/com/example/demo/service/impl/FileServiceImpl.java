@@ -1,9 +1,18 @@
 package com.example.demo.service.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,33 +28,22 @@ import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
 import com.example.demo.mapper.FileMapper;
 import com.example.demo.service.FileService;
+import com.example.demo.service.ObsService;
 import com.example.demo.utils.FileTreeNodeUtils;
-import com.obs.services.ObsClient;
-import com.obs.services.model.DeleteObjectResult;
-import com.obs.services.model.HttpMethodEnum;
-import com.obs.services.model.PostSignatureRequest;
-import com.obs.services.model.PostSignatureResponse;
-import com.obs.services.model.TemporarySignatureRequest;
-import com.obs.services.model.TemporarySignatureResponse;
+
+
 
 @Service
 public class FileServiceImpl implements FileService{
-
-	@Autowired
-	private ObsClient obsClient;
 	
 	@Autowired
 	private FileMapper fileMapper;
 	
+	@Autowired
+	private ObsService obsService;
+	
 	@Value("${obs.config.maxLevel}")
 	private Integer maxLevel;
-	
-	@Value("${obs.config.expires}")
-	private Long expires;
-	
-	@Value("${obs.config.bucketName}")
-	private String bucketName;
-	
 	
 	
 	/**
@@ -71,7 +69,7 @@ public class FileServiceImpl implements FileService{
 			File file = fileMapper.selectByPrimaryKey(fileId);
 			if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
 			if(0 != fileId && null != userId) {
-				if(file.getCreatorId() != userId)throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+				if(!file.getCreatorId().equals(userId))throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 			}
 			return file;
 		}
@@ -86,9 +84,9 @@ public class FileServiceImpl implements FileService{
 	 * @Title isRepeat
 	 * @Description 描述这个方法的作用
 	 * @param file 需要判断是否重复的文件参数
-	 * @return 重复返回true,不重复返回false
+	 * @return 重复返回重复的文件,不重复返回null
 	 */
-	private boolean isRepeat(File file) {
+	private File isRepeat(File file) {
 		
 		FileExample fileExample = new FileExample();
 		Criteria criteria = fileExample.createCriteria();
@@ -96,8 +94,8 @@ public class FileServiceImpl implements FileService{
 		//在创建者的某个父文件夹下查找是否有相同名称的file
 		criteria.andParentIdEqualTo(file.getParentId()).andNameEqualTo(file.getName()).andCreatorIdEqualTo(file.getCreatorId());
 		List<File> files = fileMapper.selectByExample(fileExample);
-		if(null == files || files.size() == 0)return false;
-		return true;
+		if(null == files || files.size() == 0)return null;
+		return files.get(0);
 	}
 	
 	
@@ -150,8 +148,8 @@ public class FileServiceImpl implements FileService{
 			if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
 			
 			//obs删除对应对象
-			DeleteObjectResult deleteObject = obsClient.deleteObject(bucketName, file.getObjectName());
-			//TODO 对deleteObject进行判断
+			boolean deleteResult = obsService.deleteObsject(file.getObjectName());
+			if(!deleteResult)return false;
 			
 			
 		}else if(file.getType() == FileType.USER_DIR.value()) {
@@ -172,8 +170,7 @@ public class FileServiceImpl implements FileService{
 			
 			//删除obs中objectKeys对应的对象
 			objectKeys.stream().forEach(objectKey->{
-				DeleteObjectResult deleteObjectResult = obsClient.deleteObject(bucketName, objectKey);
-				//TODO obs出错处理
+				obsService.deleteObsject(objectKey);		
 			});
 		}
 		
@@ -181,14 +178,7 @@ public class FileServiceImpl implements FileService{
 		
 	}
 	
-	
-	@Override
-	public PostSignatureResponse getPostSignature() {
-		PostSignatureRequest request = new PostSignatureRequest();
-		request.setExpires(expires);
-		return obsClient.createPostSignature(request);
-		
-	}
+
 
 	@Override
 	public boolean createDir(File file, Integer userId) {
@@ -202,7 +192,7 @@ public class FileServiceImpl implements FileService{
 		file.setType(FileType.USER_DIR.value());
 		
 		//检测文件夹是否已经存在
-		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
+		if(isRepeat(file) != null)throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
 		
 		//判断是否已经到达新建文件夹的最大层数
 		if(isOverMaxLevel(file.getParentId(), maxLevel, userId))throw new PanException(StatusCode.IS_OVER_DIR_MAX_LEVEL.code(), StatusCode.IS_OVER_DIR_MAX_LEVEL.message());
@@ -222,9 +212,18 @@ public class FileServiceImpl implements FileService{
 		file.setCreateDay(new Date());
 		file.setUpdateDay(new Date());
 		file.setCreatorId(userId);
+		file.setObjectName(file.getObjectName() + file.getName().substring(file.getName().lastIndexOf('.')));
 		file.setType(FileType.USER_FILE.value());
-		
-		if(isRepeat(file))throw new PanException(StatusCode.FILE_IS_EXISTED.code(), StatusCode.FILE_IS_EXISTED.message());
+		File file2 = isRepeat(file);
+		if(file2 != null) {
+			obsService.createObsClicent();
+			obsService.deleteObsject(file2.getObjectName());
+			obsService.closeObsClient();
+			file2.setObjectName(file.getObjectName());
+			fileMapper.updateByPrimaryKey(file2);
+			file.setId(file2.getId());
+			return true;
+		}
 		
 		int result = fileMapper.insert(file);
 		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
@@ -233,48 +232,82 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public String getDownloadUrl(Integer fileId, Integer userId) {
-		
+	public void downloadFile(Integer fileId, Integer userId, HttpServletRequest request, HttpServletResponse response) {
+		obsService.createObsClicent();
 		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
 		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+		InputStream inputStream = obsService.getObsObject(file.getObjectName());
+		BufferedOutputStream outputStream = null;
+		String fileName = file.getName();
+		try {
+			outputStream = new BufferedOutputStream(response.getOutputStream());
+			
+			// 为防止 文件名出现乱码
+            final String userAgent = request.getHeader("USER-AGENT");
+            // IE浏览器
+            if (userAgent.contains("MSIE")) {
+                fileName = URLEncoder.encode(fileName, "UTF-8");
+            } else {
+                // google,火狐浏览器
+                if (userAgent.contains("Mozilla")) {
+                    fileName = new String(fileName.getBytes(), "ISO8859-1");
+                } else {
+                    // 其他浏览器
+                    fileName = URLEncoder.encode(fileName, "UTF-8");
+                }
+            }
+			
+			//response.setContentType("application/x-download");
+			response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+			IOUtils.copy(inputStream, outputStream);
+		} catch (IOException e) {
+			throw new PanException(StatusCode.DEFAULT_ERROR.code(), e.getMessage());
+		}finally{
+			try {
+				outputStream.flush();
+				outputStream.close();
+				inputStream.close();
+			} catch (IOException e) {
+				throw new PanException(StatusCode.DEFAULT_ERROR.code(), e.getMessage());
+			}
+			obsService.closeObsClient();
+		}
 		
-		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
-		request.setBucketName(bucketName);
-		request.setObjectKey(file.getObjectName());
 
-		TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
 		
-		return response.getSignedUrl();
 	}
 
 	@Override
 	@Transactional
 	public boolean batchRemoveFileAndDir(List<Integer> ids, Integer userId) {
-		
+		obsService.createObsClicent();
 		checkArgs(Arrays.asList(ids, userId), null, null);
 		
 		ids.stream().forEach(id->{
 			removeFileOrDir(id, userId);
 		});
 		
+		obsService.closeObsClient();
 		return true;
 	}
 
 	@Override
-	public boolean renameFileOrDir(File file, String newName, Integer userId) {
-		
-		File file1 = checkArgs(Arrays.asList(file, newName, userId), file.getId(), userId);
-		file1.setName(newName);
+	public boolean renameFileOrDir(File file, Integer userId) {
+		File file1 = checkArgs(Arrays.asList(file, file.getName(), userId), file.getId(), userId);
+		file1.setName(file.getName());
 		int result = fileMapper.updateByPrimaryKey(file1);
 		if(1 != result)throw new PanException(StatusCode.DATABASE_ERROR.code(), StatusCode.DATABASE_ERROR.message());
-		
 		return true;
 	}
 
 	@Override
 	public String getShareUrl(Integer fileId, Integer userId) {
-		
-		return getDownloadUrl(fileId, userId);
+		obsService.createObsClicent();
+		File file = checkArgs(Arrays.asList(fileId, userId), fileId, userId);
+		if(file.getType() != FileType.USER_FILE.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
+		String objectUrl = obsService.getObsObjectShareUrl(file.getObjectName());
+		obsService.closeObsClient();
+		return objectUrl;
 	}
 
 	@Override
@@ -288,7 +321,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
+	public List<Map<String, Object>> getDirAndFileListByName(String name, Integer parentId, Integer userId) {
 		File file = checkArgs(Arrays.asList(name,parentId, userId), parentId, userId);
 		if(file.getType() != FileType.USER_DIR.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
 		

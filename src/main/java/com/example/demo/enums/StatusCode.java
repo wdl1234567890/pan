@@ -11,6 +11,12 @@ public enum StatusCode {
 	
 	DEFAULT_ERROR(10000, "默认错误代码"),
 	
+	ILLEGAL_ACCESS(10001, "非法访问"),
+	
+	LOGIN_TIME_OUT(10002, "登陆超时"),
+	
+	LOGIN_RETRY(10003, "请重新登陆"),
+	
 	SUCCESS(20000, "成功"),
 	
 	PARAM_IS_EMPTY(30001, "参数不能为空"),
@@ -31,9 +37,11 @@ public enum StatusCode {
 	
 	OBS_ERROR(60000, "obs错误代码"),
 	
-	CLIENT_ERROR(70000, "客户端请求发生错误"),
+	REDIS_ERROR(70000, "redis错误"),
 	
-	SERVER_ERROR(80000, "服务端发生错误"),
+	SERVER_ERROR(80001, "服务端发生错误"),
+	
+	CLIENT_ERROR(80002, "客户端请求发生错误"),
 
 	MAIL_OR_PHONE_IS_EXISTED(90000,"邮箱或电话号码已存在"),
 
@@ -51,6 +59,7 @@ public enum StatusCode {
 
 	PHONE_FORMAT_ERROR(90007,""),
 
+<<<<<<< HEAD
 	CONTENT_HAVE_EMPTY(90008,""),
 
 	FILE_DOWNLOAD_ERROR(90009,"文件下载失败"),
@@ -61,6 +70,9 @@ public enum StatusCode {
 
 	MAIL_FORMAT_ERROR(90012,"");
 	;
+=======
+	CONTENT_HAVE_EMPTY(90008,"");
+>>>>>>> 635ac700dbea6c86e83a11a9c8a6fe029dcb9a11
 	
 	
 	private Integer code;

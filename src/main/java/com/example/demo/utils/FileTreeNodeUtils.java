@@ -1,5 +1,6 @@
 package com.example.demo.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -218,10 +219,10 @@ public class FileTreeNodeUtils {
 	 * @param fileTreeNodes 文件树节点Map
 	 * @param parentId 文件夹id
 	 * @param name 文件/文件夹名称
-	 * @return 返回fileId文件夹下的所有名称符合name模糊匹配的文件或文件夹,键存放相对路径，值存放对应文件/文件夹
+	 * @return 返回fileId文件夹下的所有名称符合name模糊匹配的文件或文件夹
 	 * @throws RuntimeException
 	 */
-	public static Map<String, File> getFilesByNameAndParentId(Map<Integer, FileTreeNode> fileTreeNodes, Integer parentId, String name){
+	public static List<Map<String, Object>> getFilesByNameAndParentId(Map<Integer, FileTreeNode> fileTreeNodes, Integer parentId, String name){
 		
 		if(null == name || "".equals(name))throw new RuntimeException("名称关键字不能为空！");
 		if(null == fileTreeNodes || fileTreeNodes.size() == 0 || null == parentId)throw new RuntimeException("参数不能为空！");
@@ -229,7 +230,7 @@ public class FileTreeNodeUtils {
 		FileTreeNode node = fileTreeNodes.get(parentId);
 		if(null == node)throw new RuntimeException("当前文件夹不存在！");
 		
-		Map<String, File> files = new HashMap<>();
+		List<Map<String, Object>> files = new ArrayList<>();
 		
 		//遍历当前节点的孩子节点，将符合条件的节点信息存放到files中，其中键存放的是对应file的相对路径
 		node.getChildren().entrySet().stream().forEach(f->{
@@ -251,7 +252,7 @@ public class FileTreeNodeUtils {
 	 * @param path 当前路径
 	 * @return 没有返回值
 	 */
-	private static void setFilesByEqNameAndParentId(Map<String, File> files, FileTreeNode node, String name, String path) {
+	private static void setFilesByEqNameAndParentId(List<Map<String, Object>> files, FileTreeNode node, String name, String path) {
 		
 		//将当前节点的名称作为途经路径拼接到path中
 		String fileName = node.getFile().getName();
@@ -260,7 +261,10 @@ public class FileTreeNodeUtils {
 		//如果当前节点符合name的模糊匹配，就将该节点连同其对应的相对路径存入files中
 		if(fileName.contains(name)) {
 			String cPath = path.replaceFirst("/", "");
-			files.put(cPath, node.getFile());
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("path", cPath);
+			map.put("file", node.getFile());
+			files.add(map);
 		}
 		
 		//遍历当前节点的孩子节点

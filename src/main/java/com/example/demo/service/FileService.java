@@ -3,23 +3,13 @@ package com.example.demo.service;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.example.demo.domain.Authority;
 import com.example.demo.domain.File;
-import com.obs.services.model.PostSignatureResponse;
 
 public interface FileService {
-	
-	
-	
-	
-	
-	/**
-	 * 
-	 * @Title getPostSignature
-	 * @Description 获取obs签名信息
-	 * @return 包装了Signature和Policy的类
-	 */
-	public PostSignatureResponse getPostSignature();
 	
 
 	/**
@@ -51,13 +41,14 @@ public interface FileService {
 	/**
 	 * 
 	 * @Title getDownloadUrl
-	 * @Description 获取下载文件的链接
-	 * @param 文件id
-	 * @param 用户id
-	 * @return 文件的下载链接
+	 * @Description 下载文件
+	 * @param fileId 文件id
+	 * @param userId 用户id
+	 * @param request 请求
+	 * @param response 响应
 	 * @throws RuntimeException
 	 */
-	String getDownloadUrl(Integer fileId, Integer userId);
+	void downloadFile(Integer fileId, Integer userId, HttpServletRequest request, HttpServletResponse response);
 	
 	
 	
@@ -102,12 +93,11 @@ public interface FileService {
 	 * @Title renameFileOrDir
 	 * @Description 重命名文件或文件夹
 	 * @param file 文件或文件夹参数
-	 * @param newName 新的名称
 	 * @param userId 用户id
 	 * @return 重命名成功返回true，否则返回抛异常
 	 * @throws RuntimeException
 	 */
-	boolean renameFileOrDir(File file, String newName, Integer userId);
+	boolean renameFileOrDir(File file,Integer userId);
 	
 	
 	/**
@@ -140,10 +130,10 @@ public interface FileService {
 	 * @Description 根据名称在当前文件夹下查询文件/文件夹
 	 * @param name 文件/文件夹名称
 	 * @param userId 用户id
-	 * @return 符合条件的文件/文件夹，键存储相对路径,值存储对应文件
+	 * @return 符合条件的文件/文件夹
 	 * @throws RuntimeException
 	 */
-	 Map<String, File> getDirAndFileListByName(String name, Integer parentId, Integer userId);
+	 List<Map<String, Object>>  getDirAndFileListByName(String name, Integer parentId, Integer userId);
 
 	
 	
