@@ -255,6 +255,15 @@ public class UserServiceImpl implements UserService {
         return PageUtils.getPageResult(pageRequest, getPageInfo(pageRequest,user));
     }
 
+    @Override
+    public List<User> findUserByLevel(Integer level) {
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andLevelEqualTo(level);
+        List<User> users = userMapper.selectByExample(example);
+        return users;
+    }
+
     /**
      * 调用分页插件完成分页
      * @param

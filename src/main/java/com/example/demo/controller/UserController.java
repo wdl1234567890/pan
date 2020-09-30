@@ -142,9 +142,14 @@ public class UserController {
 
     @PostMapping("users")
     public JsonData getUsers(@RequestBody UserDTO userDTO){
-        System.out.println(userDTO);
         PageResult page = userService.findPage(userDTO.getPageRequest(),userDTO.getUser());
         return JsonData.buildSuccess(page);
+    }
+
+    @GetMapping("/users/{level}")
+    public JsonData getUsersByLevel(@PathVariable("level")Integer level){
+        List<User> users = userService.findUserByLevel(level);
+        return JsonData.buildSuccess(users);
     }
 
 }

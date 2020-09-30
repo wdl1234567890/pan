@@ -59,7 +59,6 @@ public enum StatusCode {
 
 	PHONE_FORMAT_ERROR(90007,""),
 
-<<<<<<< HEAD
 	CONTENT_HAVE_EMPTY(90008,""),
 
 	FILE_DOWNLOAD_ERROR(90009,"文件下载失败"),
@@ -69,10 +68,6 @@ public enum StatusCode {
 	SHEET_ERROR(90011,""),
 
 	MAIL_FORMAT_ERROR(90012,"");
-	;
-=======
-	CONTENT_HAVE_EMPTY(90008,"");
->>>>>>> 635ac700dbea6c86e83a11a9c8a6fe029dcb9a11
 	
 	
 	private Integer code;

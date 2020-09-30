@@ -38,4 +38,6 @@ public interface UserService {
     List<User> findUserByDepartment(String department) throws Exception;
 
     PageResult findPage(PageRequest pageRequest,User user);
+
+    List<User> findUserByLevel(Integer level);
 }
