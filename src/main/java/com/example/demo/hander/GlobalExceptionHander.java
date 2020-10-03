@@ -55,9 +55,9 @@ public class GlobalExceptionHander {
 	 */
 	@ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, ConstraintViolationException.class})
 	public JsonData handlerValidateException(Exception ex) {
-		
+
 		HashMap<String,Object> errorMap = new HashMap<>();
-		
+
 		BindingResult result = null;
 		if(ex instanceof MethodArgumentNotValidException)result = ((MethodArgumentNotValidException)ex).getBindingResult();
 		else if(ex instanceof BindException)result = ((BindException)ex).getBindingResult();
@@ -70,7 +70,7 @@ public class GlobalExceptionHander {
 			});
 			return JsonData.buildError(StatusCode.PARAM_VALIDATE_FAILED.code(), errorMap);
 		}
-		
+
 		result.getFieldErrors().forEach(error -> {
 			errorMap.put(error.getField(), error.getDefaultMessage());
 		});

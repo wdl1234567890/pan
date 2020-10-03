@@ -1,6 +1,6 @@
 package com.example.demo;
-
-
+import com.example.demo.domain.UserExample;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.MyBatisGenerator;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,10 @@ class DemoApplicationTests {
 
 	@Autowired
 	UserService userService;
-
+	
+	@Autowired
+	UserMapper userMapper;
+	
 	@Test
 	void contextLoads() throws Exception {
 		List<String> warnings = new ArrayList<String>();
@@ -36,14 +38,25 @@ class DemoApplicationTests {
 
 	}
 
+
 	@Test
 	public void test() throws Exception {
 
-		try {
-			userService.importUsers(new FileInputStream("E:\\WorkSpace\\clone\\pan\\src\\main\\resources\\default.xlsx"),"default.xlsx");
-		}catch (Exception e){
-			e.printStackTrace();
-		}
+//		try {
+//			userService.importUsers(new FileInputStream("E:\\WorkSpace\\clone\\pan\\src\\main\\resources\\default.xlsx"),"default.xlsx",new ArrayList<>());
+//		}catch (Exception e){
+//			e.printStackTrace();
+//		}
+
+//		UserExample userExample = new UserExample();
+//		UserExample.Criteria criteria = userExample.createCriteria();
+//		List<User> users = userMapper.selectByExample(userExample);
+//		System.out.println(users.size());
+
+		UserExample example = new UserExample();
+		UserExample.Criteria criteria = example.createCriteria();
+		criteria.andDepartmentNotBetween(0,4);
+		userMapper.deleteByExample(example);
 
 	}
 

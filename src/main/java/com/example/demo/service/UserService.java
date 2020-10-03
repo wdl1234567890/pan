@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.Department;
+import com.example.demo.domain.PageResult;
 import com.example.demo.domain.User;
+import com.example.demo.utils.PageRequest;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public interface UserService {
 
     Boolean addUser(User user);
 
-    Boolean importUsers(InputStream inputStream, String filename);
+    Boolean importUsers(InputStream inputStream, String filename, List<Department> departments);
 
     Boolean delUser(int id);
 
@@ -34,4 +36,8 @@ public interface UserService {
     List<User> findUserByName(String name, Boolean islike) throws Exception;
 
     List<User> findUserByDepartment(String department) throws Exception;
+
+    PageResult findPage(PageRequest pageRequest,User user);
+
+    List<User> findUserByLevel(Integer level);
 }
