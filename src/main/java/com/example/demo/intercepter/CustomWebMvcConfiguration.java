@@ -22,7 +22,7 @@ public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**");
+		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/prii/**").excludePathPatterns("api/v1/pri/file/sharecontent/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 

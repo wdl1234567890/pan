@@ -31,6 +31,15 @@ public enum StatusCode {
 	
 	AUTHORITY_IS_NOT_EXISTED(30006, "权限不存在！"),
 	
+	OPERATION_NOT_ALLOWED(30007, "该操作不被允许"),
+	
+	ENCODE_ERROR(30008, "加密发生错误"),
+	
+	DECODE_ERROR(30009, "解密发生错误"),
+	
+	KEY_INVALID(30010, "分享参数无效"),
+	
+	
 	PARAM_VALIDATE_FAILED(40000, "参数校验不通过"),
 	
 	DATABASE_ERROR(50000, "数据库错误！"),

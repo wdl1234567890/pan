@@ -67,15 +67,18 @@ public interface FileMapper {
     
     List<File> selectByParentId(@Param("parentId")Integer parentId, @Param("userId")Integer userId);
     
-    List<File> getByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId);
+    //List<File> getByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId, @Param("userId")Integer userId);
     
-    List<File> getLikeByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId);
+    //List<File> getLikeByNameAndParentId(@Param("name")String name, @Param("parentId")Integer parentId, @Param("userId")Integer userId);
     
-    List<File> getAll();
+    //List<File> getAll();
     
     List<File> getByCreatorId(Integer creatorId);
     
     List<File> getGroupFileAndDir();
+    
+    List<File> getGroupFileAndDirByParentId(Integer parentId);
+    
     
 
     /**

@@ -60,8 +60,8 @@ class FileServiceTest {
 	@Test
 	void testGetFileListByParentId() {
 
-		List<File> files = fileService.getDirAndFileListByParentId(16, 1);
-		System.out.println(files);
+		Map<String, Object> map = fileService.getDirAndFileListByParentId(16, 1);
+		System.out.println(map);
 	}
 
 	@Test
@@ -75,5 +75,4 @@ class FileServiceTest {
 		String path = fileService.getPathById(16, 1);
 		System.out.println(path);
 	}
-
 }

@@ -331,22 +331,26 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByParentId" resultMap="BaseResultMap">
-  	select * from file where parent_id=#{parentId} and creator_id=#{userId}
+  	select * from file where parent_id=#{parentId} and creator_id=#{userId} and (type=1 or type=0)
   </select>
-  <select id="getByNameAndParentId" resultMap="BaseResultMap">
-  	select * from file where name=#{name} and parent_id=#{parentId}
+  <!--  <select id="getByNameAndParentId" resultMap="BaseResultMap">
+  	select * from file where name=#{name} and parent_id=#{parentId} and creator_id=#{userId} and (type=1 or type=0)
   </select>
   <select id="getLikeByNameAndParentId" resultMap="BaseResultMap">
-  	select * from file where name like '%#{name}%' and parent_id=#{parentId}
+  	select * from file where name like '%#{name}%' and parent_id=#{parentId} and creator_id=#{userId} and (type=1 or type=0)
   </select>
   <select id="getAll" resultMap="BaseResultMap">
   	select * from file
   </select>
+  -->
   <select id="getByCreatorId" resultMap="BaseResultMap">
-  	select * from file where creator_id=#{creatorId} or creator_id=-1
+  	select * from file where (creator_id=#{creatorId} and (type=1 or type=0)) or creator_id=-1
   </select>
   <select id="getGroupFileAndDir" resultMap="BaseResultMap">
   	select * from file where type=2 or type=3 or creator_id=-1
+  </select>
+  <select id="getGroupFileAndDirByParentId" resultMap="BaseResultMap">
+  	select * from file where (type=2 or type=3) and parent_id=#{parentId}
   </select>
   <delete id="batchDeleteById">
   	delete from file where id in

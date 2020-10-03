@@ -81,17 +81,6 @@ public class ObsServiceImpi implements ObsService{
 		}
 	}
 
-	@Override
-	public String getObsObjectShareUrl(String objectKey) {
-		
-		TemporarySignatureRequest request = new TemporarySignatureRequest(HttpMethodEnum.GET, expires);
-		request.setBucketName(bucketName);
-		request.setObjectKey(objectKey);
-		
-		TemporarySignatureResponse response = obsClient.createTemporarySignature(request);
-		return response.getSignedUrl();
-		
-	}
 	
 	
 }

@@ -283,14 +283,15 @@ public class FileTreeNodeUtils {
 	 * @Description 获取指定fileId所处的根目录下的群组文件夹id
 	 * @param fileId 文件/文件夹id
 	 * @param fileTreeNodes 文件树节点Map
-	 * @return 返回指定fileId所处的根目录下的群组文件夹id, 若fileId为0，表示该file为根目录，此时返回-1
-	 * @throws 
+	 * @return 返回指定fileId所处的根目录下的群组文件夹id
 	 */
 	public static Integer getRootGroupDirIdByFileId(Map<Integer, FileTreeNode> fileTreeNodes, Integer fileId) {
 		
-		if(0 == fileId)return -1;
+		if(0 == fileId)return null;
 		
 		FileTreeNode temp = fileTreeNodes.get(fileId);
+		
+		if(null == temp)return null;
 		
 		while(temp.getParent() != 0) {
 			temp = fileTreeNodes.get(temp.getParent());		

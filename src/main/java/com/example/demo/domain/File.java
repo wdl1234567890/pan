@@ -5,8 +5,13 @@ import java.util.Date;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.springframework.validation.BindException;
+
+import com.example.demo.enums.StatusCode;
+import com.example.demo.exception.PanException;
 import com.example.demo.validate.group.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -162,7 +167,8 @@ public class File implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
-    public void setName(String name) {
+    public void setName(String name){
+    	
         this.name = name == null ? null : name.trim();
     }
 
@@ -224,6 +230,7 @@ public class File implements Serializable {
      *
      * @mbggenerated Mon Sep 14 20:05:20 CST 2020
      */
+    
     public Date getUpdateDay() {
         return updateDay;
     }
@@ -287,6 +294,7 @@ public class File implements Serializable {
      */
     @JsonProperty
     public void setObjectName(String objectName) {
+    	
         this.objectName = objectName == null ? null : objectName.trim();
     }
 

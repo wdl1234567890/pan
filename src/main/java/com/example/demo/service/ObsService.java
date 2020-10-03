@@ -39,17 +39,6 @@ public interface ObsService {
 	
 	/**
 	 * 
-	 * @Title getObsObjectShareUrl
-	 * @Description 获取obs对象的分享地址
-	 * @param objectKey obs对象名
-	 * @return obs对象的分享地址
-	 * @throws ObsException
-	 */
-	public String getObsObjectShareUrl(String objectKey);
-	
-	
-	/**
-	 * 
 	 * @Title deleteObsject
 	 * @Description 删除obs对象
 	 * @param objectKey 对象名
