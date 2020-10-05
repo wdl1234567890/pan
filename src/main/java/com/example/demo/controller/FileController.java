@@ -59,9 +59,9 @@ public class FileController {
 	public JsonData createFile(@RequestBody @Validated(Group.CreateFile.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		fileService.createFile(file, 1);
+		fileService.createFile(file, user.getId());
 		Map<String, Integer> map = new HashMap<>();
 		map.put("fileId", file.getId());
 		return JsonData.buildSuccess(map);
@@ -71,9 +71,9 @@ public class FileController {
 	public JsonData createDir(@RequestBody @Validated(Group.CreateDir.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		fileService.createDir(file, 1);
+		fileService.createDir(file, user.getId());
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -90,9 +90,9 @@ public class FileController {
 		
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		fileService.batchRemoveFileAndDir(ids, 1);
+		fileService.batchRemoveFileAndDir(ids, user.getId());
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -100,9 +100,9 @@ public class FileController {
 	public JsonData renameDirOrFile(@RequestBody @Validated(Group.UpdateDirOrFile.class) File file, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		fileService.renameFileOrDir(file, 1);
+		fileService.renameFileOrDir(file, user.getId());
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -111,9 +111,9 @@ public class FileController {
 	public JsonData getDownloadFile(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers, HttpServletRequest request,  HttpServletResponse response) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
-		Integer userId = 1;
-		fileService.downloadFile(fileId, userId, request, response);
+		User user = loginService.getUser(headers.get("token").get(0));
+
+		fileService.downloadFile(fileId, user.getId(), request, response);
 		return JsonData.buildSuccess(null);
 	}
 	
@@ -121,9 +121,9 @@ public class FileController {
 	public JsonData getShareFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		String shareUrl = fileService.getShareUrl(fileId, 1);
+		String shareUrl = fileService.getShareUrl(fileId, user.getId());
 		Map<String,String> map = new HashMap<>();
 		map.put("shareUrl", shareUrl);
 		return JsonData.buildSuccess(map);
@@ -141,9 +141,9 @@ public class FileController {
 		
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		Map<String, Object> map = fileService.getDirAndFileListByParentId(parentId, 1);
+		Map<String, Object> map = fileService.getDirAndFileListByParentId(parentId, user.getId());
 		
 		return JsonData.buildSuccess(map);
 	
@@ -154,9 +154,9 @@ public class FileController {
 	public JsonData getDirAndFileListByName(@RequestBody @Validated FileSearch fileSearch, @RequestHeader HttpHeaders headers) {
 		//从header中拿token
 		//根据token从redis中拿用户信息
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		List<Map<String, Object>> files = fileService.getDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), 1);
+		List<Map<String, Object>> files = fileService.getDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), user.getId());
 		return JsonData.buildSuccess(files);
 	}
 	
@@ -168,14 +168,14 @@ public class FileController {
 	
 	@GetMapping("/group/upload/param/{id}")
 	public JsonData getGroupUploadParam(@PathVariable("id") @NotNull(message = "parentId不能为空") @Min(value = 0, message="parentId必须为大于等于0的整数")Integer parentId, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		Map<String, Object> map = fileService.getGroupUploadParam(parentId, user1);
+		Map<String, Object> map = fileService.getGroupUploadParam(parentId, user);
 		return JsonData.buildSuccess(map);
 	}
 	
@@ -183,28 +183,28 @@ public class FileController {
 	
 	@PostMapping("/group/dir")
 	public JsonData createGroupDir(@RequestBody @Validated(Group.CreateDir.class)File file, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		fileService.createGroupDir(file, user1);
+		fileService.createGroupDir(file, user);
 		return JsonData.buildSuccess(null);
 	}
 	
 	
 	@PostMapping("/group")
 	public JsonData createGroupFile(@RequestBody @Validated(Group.CreateFile.class) File file, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
-		
-		fileService.createGroupFile(file, user1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
+//		
+		fileService.createGroupFile(file, user);
 		Map<String, Integer> map = new HashMap<>();
 		map.put("fileId", file.getId());
 		return JsonData.buildSuccess(map);
@@ -213,56 +213,56 @@ public class FileController {
 	
 	@DeleteMapping("/group")
 	public JsonData deleteGroupDirAndFile(@RequestBody @Validated DeleteParam deleteParam, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		fileService.batchRemoveGroupFileAndDir(deleteParam.getIds(), deleteParam.getParentId(), user1);
+		fileService.batchRemoveGroupFileAndDir(deleteParam.getIds(), deleteParam.getParentId(), user);
 		return JsonData.buildSuccess(null);
 	}
 	
 	
 	@PutMapping("/group")
 	public JsonData renameGroupDirOrFile(@RequestBody @Validated(Group.UpdateDirOrFile.class) File file, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		fileService.renameGroupFileOrDir(file, user1);
+		fileService.renameGroupFileOrDir(file, user);
 		return JsonData.buildSuccess(null);
 	}
 	
 	
 	@GetMapping("/group/{id}")
 	public JsonData getGroupDownloadFile(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers, HttpServletRequest request,  HttpServletResponse response) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		fileService.downloadGroupFile(fileId, user1, request, response);
+		fileService.downloadGroupFile(fileId, user, request, response);
 		return JsonData.buildSuccess(null);
 	}
 	
 	
 	@GetMapping("/group/share/{id}")
 	public JsonData getGroupShareFileUrl(@PathVariable("id") @NotNull(message = "id不能为空") @Min(value = 1, message="id必须为大于等于1的整数") Integer fileId, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		String shareUrl = fileService.getGroupFileShareUrl(fileId, user1);
+		String shareUrl = fileService.getGroupFileShareUrl(fileId, user);
 		Map<String,String> map = new HashMap<>();
 		map.put("shareUrl", shareUrl);
 		return JsonData.buildSuccess(map);
@@ -271,14 +271,14 @@ public class FileController {
 	
 	@GetMapping("/group/list/{id}")
 	public JsonData getGroupDirAndFileListByParentId(@PathVariable("id") @NotNull(message = "parentId不能为空") @Min(value = 0, message="parentId必须为大于等于0的整数") Integer parentId, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		GroupDirOrFileInfos infos = fileService.getGroupDirAndFileListByParentId(parentId, user1);
+		GroupDirOrFileInfos infos = fileService.getGroupDirAndFileListByParentId(parentId, user);
 		
 		return JsonData.buildSuccess(infos);
 	}
@@ -286,14 +286,14 @@ public class FileController {
 	
 	@PostMapping("/group/list/search")
 	public JsonData getGroupDirAndFileListByName(@RequestBody @Validated FileSearch fileSearch, @RequestHeader HttpHeaders headers) {
-		//User user = loginService.getUser(headers.get("token").get(0));
+		User user = loginService.getUser(headers.get("token").get(0));
 		
-		User user1 = new User();
-		user1.setDepartment(1);
-		user1.setId(1);
-		user1.setLevel(1);
+//		User user1 = new User();
+//		user1.setDepartment(1);
+//		user1.setId(1);
+//		user1.setLevel(1);
 		
-		List<Map<String, Object>> files = fileService.getGroupDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), user1);
+		List<Map<String, Object>> files = fileService.getGroupDirAndFileListByName(fileSearch.getName(), fileSearch.getParentId(), user);
 		return JsonData.buildSuccess(files);
 	}
 	
