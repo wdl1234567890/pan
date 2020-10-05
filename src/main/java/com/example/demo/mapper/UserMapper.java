@@ -100,4 +100,12 @@ public interface UserMapper {
     int updateByPrimaryKey(User record);
 
     int insertBath(@Param("users") List<User> users);
+
+    /**
+     * 分页显示
+     * @return
+     */
+    List<User> selectPage();
+
+    int countByDepartment(Integer department);
 }

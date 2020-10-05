@@ -19,10 +19,10 @@ public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	public LoginStateIntercepter loginStateInterceptor() {
 		return new LoginStateIntercepter();
 	}
-	
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/prii/**").excludePathPatterns("/api/v1/pri/file/sharecontent/**");
+		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**").excludePathPatterns("/api/v1/pri/file/sharecontent/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 

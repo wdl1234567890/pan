@@ -4,7 +4,6 @@ import com.example.demo.domain.Department;
 import com.example.demo.service.DepartmentService;
 import com.example.demo.vo.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +30,6 @@ public class DepartmentController {
 
     @RequestMapping(value = "department/{id}",method = RequestMethod.DELETE)
     public JsonData deleteDepartment(@PathVariable("id")Integer id){
-
         if(departmentService.delDepartment(id)){
             return JsonData.buildSuccess("删除成功");
         }else{
@@ -57,5 +55,11 @@ public class DepartmentController {
         }else{
             return JsonData.buildError();
         }
+    }
+
+    @GetMapping("department/{id}")
+    public JsonData getDepartmentById(@PathVariable("id")Integer id){
+        Department department = departmentService.findDepartmentById(id);
+        return JsonData.buildSuccess(department);
     }
 }

@@ -2,9 +2,11 @@ package com.example.demo.service.impl;
 
 import com.example.demo.domain.Department;
 import com.example.demo.domain.DepartmentExample;
+import com.example.demo.domain.UserExample;
 import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
 import com.example.demo.mapper.DepartmentMapper;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     private DepartmentMapper departmentMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     /**
      * 查询所有部门信息
      * @return  List类型的部门信息
@@ -31,6 +36,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         List<Department> list;
         try {
              list = departmentMapper.selectByExample(new DepartmentExample());
+            for (Department department : list) {
+                department.setUsers(userMapper.countByDepartment(department.getId()));
+            }
         }catch (Exception e){
             throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
         }
