@@ -12,7 +12,7 @@ import java.util.List;
  * @author GooRay
  * 创建于 2020/9/22
  */
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true",allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1/pri/admin/")
 public class DepartmentController {

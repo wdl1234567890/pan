@@ -14,16 +14,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
 	
-	//实现注册拦截器的方法
-	@Bean
-	public LoginStateIntercepter loginStateInterceptor() {
-		return new LoginStateIntercepter();
-	}
-
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**");
-		WebMvcConfigurer.super.addInterceptors(registry);
-	}
+//	//实现注册拦截器的方法
+//	@Bean
+//	public LoginStateIntercepter loginStateInterceptor() {
+//		return new LoginStateIntercepter();
+//	}
+//
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**");
+//		WebMvcConfigurer.super.addInterceptors(registry);
+//	}
 
 }
