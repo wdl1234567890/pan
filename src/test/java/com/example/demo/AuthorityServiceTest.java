@@ -23,7 +23,7 @@ class AuthorityServiceTest {
 		User user = new User();
 		user.setId(1);
 		user.setDepartment(1);
-		user.setLevel(1);
+		user.setLevel(0);
 		List<Authority> authoritys = authorityService.getRootGroupDirAuthorityByFileId(130, user);
 		//authoritys.add(new Authority(3, null));
 //		authoritys.get(1).setUpload(1);
