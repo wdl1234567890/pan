@@ -43,7 +43,7 @@ import java.util.List;
  * @author 白开水
  *
  */
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true",allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1/pri/admin/")
 public class UserController {

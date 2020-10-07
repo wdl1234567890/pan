@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 	
-	
 	@Bean
     public CorsInterceptor corsInterceptor() {
 		return new CorsInterceptor();
@@ -35,5 +34,6 @@ public class CustomWebMvcConfiguration implements WebMvcConfigurer{
 		registry.addInterceptor(loginStateInterceptor()).addPathPatterns("/api/v1/pri/**").excludePathPatterns("/api/v1/pri/file/sharecontent/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
+
 
 }

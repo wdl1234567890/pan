@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         }
         try{
             for (User user : users) {
-                if(isRepeat(user)) throw new PanException(StatusCode.MAIL_OR_PHONE_IS_EXISTED.code(),StatusCode.MAIL_OR_PHONE_IS_EXISTED.message());
+                if(isRepeat(user)) throw new PanException(StatusCode.MAIL_OR_PHONE_IS_EXISTED.code(),user.getPhone()+"或"+user.getPhone()+"已存在");
                 int insert = userMapper.insert(user);
                 if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
             }
@@ -272,7 +272,6 @@ public class UserServiceImpl implements UserService {
     private PageInfo<User> getPageInfo(PageRequest pageRequest,User userExample) {
         int pageNum = pageRequest.getPageNum();
         int pageSize = pageRequest.getPageSize();
-        PageHelper.startPage(pageNum, pageSize);
         UserExample example = new UserExample();
         UserExample.Criteria criteria = example.createCriteria();
         if(userExample.getName()!=null&&!"null".equals(userExample.getName())){
@@ -290,7 +289,7 @@ public class UserServiceImpl implements UserService {
         if(userExample.getLevel()!=null){
             criteria.andLevelEqualTo(userExample.getLevel());
         }
-
+        PageHelper.startPage(pageNum,pageSize,true);
         List<User> users = userMapper.selectByExample(example);
         for (User user : users) {
             Department department = departmentMapper.selectByPrimaryKey(user.getDepartment());
