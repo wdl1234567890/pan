@@ -1,6 +1,8 @@
 package com.example.demo.service.impl;
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,7 +12,7 @@ import com.example.demo.service.LoginService;
 import com.example.demo.vo.UserTokenVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.demo.domain.User;
-
+import com.example.demo.domain.UserExample;
 import com.example.demo.domain.UserLog;
 import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
@@ -43,14 +45,16 @@ public class LoginServiceImpl implements LoginService {
 		//保存登陆信息
 		UserLog message = new UserLog();
 		// 获取同用户名的对象
-		User check = userMapper.selectByPrimaryKey(user.getId());
+		UserExample example = new UserExample();
+		example.createCriteria().andMailEqualTo(user.getMail());
+		List<User> check = userMapper.selectByExample(example);
 		// 如果为空则不存在该用户，返回空
-		if (check == null) {
+		if (check == null||check.size()==0) {
 			message.setMessage("不存在该用户");
 			return message;
-		} else if (check.getPwd().equals(user.getPwd())) {
+		} else if (check.get(0).getPwd().equals(user.getPwd())) {
 			message.setMessage("登陆成功");
-			message.setUser(check);
+			message.setUser(check.get(0));
 			return message;
 		} else {
 			// 密码不匹配说明密码错误，返回null
@@ -90,14 +94,15 @@ public class LoginServiceImpl implements LoginService {
 	 * @date 2020-09-17 09:44:40
 	 */
 	@Override
-	public String pwdToMail(String mail, Integer id) throws Exception {
-		User user = userMapper.selectByPrimaryKey(id);
+	public String pwdToMail(String mail) throws Exception {
+		UserExample example = new UserExample();
+		example.createCriteria().andMailEqualTo(mail);
+		List<User> check = userMapper.selectByExample(example);
 		//若不存在该用户，或是邮箱不正确都返回错误信息
-		if(user==null) {
-			return "不存在该用户名";
-		}else if(!mail.equals(user.getMail())){
-			return "邮箱不匹配！";
-		}
+		if (check == null||check.size()==0) {
+			return "不存在该用户";
+		} 
+		User user=check.get(0);
 		//用户名与邮箱都正确,发送密码邮件
 		SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom("2420355525@qq.com");//发送者

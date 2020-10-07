@@ -9,6 +9,6 @@ import com.example.demo.domain.UserLog;
  */
 public interface LoginService {
 	UserLog loginUser(User user)throws Exception;
-	String pwdToMail(String mail,Integer id)throws Exception;
+	String pwdToMail(String mail)throws Exception;
 	User getUser(String token);
 }
