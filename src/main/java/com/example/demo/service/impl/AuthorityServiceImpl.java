@@ -124,6 +124,7 @@ public class AuthorityServiceImpl implements AuthorityService{
 		if((file.getType() != FileType.GROUP_DIR.value() && file.getType() != FileType.GROUP_FILE.value()) || 0 != file.getParentId())throw new PanException(StatusCode.OPERATION_NOT_ALLOWED.code(), StatusCode.OPERATION_NOT_ALLOWED.message());
 		
 		return authorityMapper.getByFileId(fileId);
+		
 	}
 
 	@Override
@@ -186,9 +187,15 @@ public class AuthorityServiceImpl implements AuthorityService{
 		if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
 		if((file.getType() != FileType.GROUP_DIR.value() && file.getType() != FileType.GROUP_FILE.value()) || 0 != file.getParentId())throw new PanException(StatusCode.OPERATION_NOT_ALLOWED.code(), StatusCode.OPERATION_NOT_ALLOWED.message());
 
+		
+		//过滤没有部门id的条目
+		authoritys = authoritys.stream().filter(auth -> {
+			return auth.getDepartmentId() != null && !auth.getDepartmentId().equals(0);
+		}).collect(Collectors.toList());
 				
 		//过滤具有重复部门id的条目，若重复了，则以第一次出现的条目为准
 		authoritys = ToolUtils.distinctAuthority(authoritys);
+		
 				
 		//为每个权限设置fileId
 		authoritys.stream().forEach(auth->{
@@ -206,7 +213,7 @@ public class AuthorityServiceImpl implements AuthorityService{
 		
 		
 		addAuthoritys = authoritys.stream().filter(auth -> {
-			return auth.getId() == null;
+			return auth.getId() == null && auth.getIsDelete() == 0;
 		}).collect(Collectors.toList());
 		
 		updateAuthoritys = authoritys.stream().filter(auth -> {
