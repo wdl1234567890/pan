@@ -76,7 +76,9 @@ public enum StatusCode {
 
 	SHEET_ERROR(90011,""),
 
-	MAIL_FORMAT_ERROR(90012,"");
+	MAIL_FORMAT_ERROR(90012,""),
+
+	DEPARTMENT_IS_EXISTED(90012,"部门已存在");
 	
 	
 	private Integer code;
