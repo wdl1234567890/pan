@@ -40,4 +40,6 @@ public interface UserService {
     PageResult findPage(PageRequest pageRequest,User user);
 
     List<User> findUserByLevel(Integer level);
+
+    Boolean changeLevel(Integer id);
 }

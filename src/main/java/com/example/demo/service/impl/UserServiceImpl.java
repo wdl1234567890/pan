@@ -264,6 +264,18 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+    @Override
+    public Boolean changeLevel(Integer id) {
+        User user = userMapper.selectByPrimaryKey(id);
+        if(user.getLevel() == 1){
+            user.setLevel(0);
+        }else if(user.getLevel() == 0){
+            user.setLevel(1);
+        }
+        changeUser(user);
+        return true;
+    }
+
     /**
      * 调用分页插件完成分页
      * @param
