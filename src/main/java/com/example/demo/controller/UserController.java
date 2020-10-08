@@ -152,5 +152,11 @@ public class UserController {
         return JsonData.buildSuccess(users);
     }
 
+    @PutMapping("/user/{id}")
+    public JsonData updateUserLevel(@PathVariable("id") Integer id){
+        userService.changeLevel(id);
+        return JsonData.buildSuccess("修改成功");
+    }
+
 }
 
