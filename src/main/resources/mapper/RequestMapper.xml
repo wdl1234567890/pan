@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.RequestMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.domain.Request">
+    <id column="r_id" jdbcType="VARCHAR" property="rId" />
+    <result column="my_id" jdbcType="INTEGER" property="myId" />
+    <result column="friend_id" jdbcType="INTEGER" property="friendId" />
+    <result column="flag" jdbcType="BIT" property="flag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    r_id, my_id, friend_id, flag
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from request
+    where r_id = #{rId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByMyIdAndFId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from request
+    where my_id = #{myId,jdbcType=INTEGER} and friend_id = #{friendId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByMyId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from request
+    where friend_id = #{friendId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from request
+    where r_id = #{rId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByMyIdAndFId" parameterType="java.lang.Integer">
+    delete from request
+    where my_id = #{myId,jdbcType=INTEGER} and friend_id = #{friendId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.domain.Request">
+    insert into request (r_id, my_id, friend_id, 
+      flag)
+    values (#{rId,jdbcType=VARCHAR}, #{myId,jdbcType=INTEGER}, #{friendId,jdbcType=INTEGER}, 
+      #{flag,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.domain.Request">
+    insert into request
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="rId != null">
+        r_id,
+      </if>
+      <if test="myId != null">
+        my_id,
+      </if>
+      <if test="friendId != null">
+        friend_id,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="rId != null">
+        #{rId,jdbcType=VARCHAR},
+      </if>
+      <if test="myId != null">
+        #{myId,jdbcType=INTEGER},
+      </if>
+      <if test="friendId != null">
+        #{friendId,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.domain.Request">
+    update request
+    <set>
+      <if test="myId != null">
+        my_id = #{myId,jdbcType=INTEGER},
+      </if>
+      <if test="friendId != null">
+        friend_id = #{friendId,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=BIT},
+      </if>
+    </set>
+    where r_id = #{rId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.domain.Request">
+    update request
+    set my_id = #{myId,jdbcType=INTEGER},
+      friend_id = #{friendId,jdbcType=INTEGER},
+      flag = #{flag,jdbcType=BIT}
+    where r_id = #{rId,jdbcType=VARCHAR}
+  </update>
+</mapper>

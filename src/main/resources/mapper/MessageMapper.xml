@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.MessageMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.domain.Message">
+    <id column="m_id" jdbcType="VARCHAR" property="mId" />
+    <result column="send_id" jdbcType="INTEGER" property="sendId" />
+    <result column="rec_id" jdbcType="INTEGER" property="recId" />
+    <result column="m_type" jdbcType="BIT" property="mType" />
+    <result column="department_id" jdbcType="INTEGER" property="departmentId" />
+    <result column="c_time" jdbcType="VARCHAR" property="cTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.example.demo.domain.Message">
+    <result column="message_con" jdbcType="LONGVARCHAR" property="messageCon" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    m_id, send_id, rec_id, m_type, department_id, c_time
+  </sql>
+  <sql id="Blob_Column_List">
+    message_con
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from message
+    where m_id = #{mId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByRecId" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from message
+    where rec_id = #{recId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from message
+    where m_id = #{mId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.domain.Message">
+    insert into message (m_id, send_id, rec_id, 
+      m_type, department_id, c_time, 
+      message_con)
+    values (#{mId,jdbcType=VARCHAR}, #{sendId,jdbcType=INTEGER}, #{recId,jdbcType=INTEGER}, 
+      #{mType,jdbcType=BIT}, #{departmentId,jdbcType=INTEGER}, #{cTime,jdbcType=VARCHAR}, 
+      #{messageCon,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.domain.Message">
+    insert into message
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="mId != null">
+        m_id,
+      </if>
+      <if test="sendId != null">
+        send_id,
+      </if>
+      <if test="recId != null">
+        rec_id,
+      </if>
+      <if test="mType != null">
+        m_type,
+      </if>
+      <if test="departmentId != null">
+        department_id,
+      </if>
+      <if test="cTime != null">
+        c_time,
+      </if>
+      <if test="messageCon != null">
+        message_con,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="mId != null">
+        #{mId,jdbcType=VARCHAR},
+      </if>
+      <if test="sendId != null">
+        #{sendId,jdbcType=INTEGER},
+      </if>
+      <if test="recId != null">
+        #{recId,jdbcType=INTEGER},
+      </if>
+      <if test="mType != null">
+        #{mType,jdbcType=BIT},
+      </if>
+      <if test="departmentId != null">
+        #{departmentId,jdbcType=INTEGER},
+      </if>
+      <if test="cTime != null">
+        #{cTime,jdbcType=VARCHAR},
+      </if>
+      <if test="messageCon != null">
+        #{messageCon,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.domain.Message">
+    update message
+    <set>
+      <if test="sendId != null">
+        send_id = #{sendId,jdbcType=INTEGER},
+      </if>
+      <if test="recId != null">
+        rec_id = #{recId,jdbcType=INTEGER},
+      </if>
+      <if test="mType != null">
+        m_type = #{mType,jdbcType=BIT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=INTEGER},
+      </if>
+      <if test="cTime != null">
+        c_time = #{cTime,jdbcType=VARCHAR},
+      </if>
+      <if test="messageCon != null">
+        message_con = #{messageCon,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where m_id = #{mId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.example.demo.domain.Message">
+    update message
+    set send_id = #{sendId,jdbcType=INTEGER},
+      rec_id = #{recId,jdbcType=INTEGER},
+      m_type = #{mType,jdbcType=BIT},
+      department_id = #{departmentId,jdbcType=INTEGER},
+      c_time = #{cTime,jdbcType=VARCHAR},
+      message_con = #{messageCon,jdbcType=LONGVARCHAR}
+    where m_id = #{mId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.domain.Message">
+    update message
+    set send_id = #{sendId,jdbcType=INTEGER},
+      rec_id = #{recId,jdbcType=INTEGER},
+      m_type = #{mType,jdbcType=BIT},
+      department_id = #{departmentId,jdbcType=INTEGER},
+      c_time = #{cTime,jdbcType=VARCHAR}
+    where m_id = #{mId,jdbcType=VARCHAR}
+  </update>
+</mapper>

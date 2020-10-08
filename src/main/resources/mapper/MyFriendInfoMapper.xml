@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.MyFriendInfoMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.domain.MyFriendInfo">
+    <id column="m_f_i_id" jdbcType="VARCHAR" property="mFIId" />
+    <result column="my_id" jdbcType="INTEGER" property="myId" />
+    <result column="friend_id" jdbcType="INTEGER" property="friendId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.example.demo.domain.MyFriendInfo">
+    <result column="info" jdbcType="LONGVARCHAR" property="info" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    m_f_i_id, my_id, friend_id
+  </sql>
+  <sql id="Blob_Column_List">
+    info
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from my_friend_info
+    where m_f_i_id = #{mFIId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByMyIdAndFId" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from my_friend_info
+    where my_id = #{myId,jdbcType=INTEGER} and friend_id = #{friendId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from my_friend_info
+    where m_f_i_id = #{mFIId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByMyIdAndFId" parameterType="java.lang.Integer">
+    delete from my_friend_info
+    where my_id = #{myId,jdbcType=INTEGER} and friend_id = #{friendId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.domain.MyFriendInfo">
+    insert into my_friend_info (m_f_i_id, my_id, friend_id, 
+      info)
+    values (#{mFIId,jdbcType=VARCHAR}, #{myId,jdbcType=INTEGER}, #{friendId,jdbcType=INTEGER}, 
+      #{info,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.domain.MyFriendInfo">
+    insert into my_friend_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="mFIId != null">
+        m_f_i_id,
+      </if>
+      <if test="myId != null">
+        my_id,
+      </if>
+      <if test="friendId != null">
+        friend_id,
+      </if>
+      <if test="info != null">
+        info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="mFIId != null">
+        #{mFIId,jdbcType=VARCHAR},
+      </if>
+      <if test="myId != null">
+        #{myId,jdbcType=INTEGER},
+      </if>
+      <if test="friendId != null">
+        #{friendId,jdbcType=INTEGER},
+      </if>
+      <if test="info != null">
+        #{info,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.domain.MyFriendInfo">
+    update my_friend_info
+    <set>
+      <if test="myId != null">
+        my_id = #{myId,jdbcType=INTEGER},
+      </if>
+      <if test="friendId != null">
+        friend_id = #{friendId,jdbcType=INTEGER},
+      </if>
+      <if test="info != null">
+        info = #{info,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where m_f_i_id = #{mFIId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.example.demo.domain.MyFriendInfo">
+    update my_friend_info
+    set my_id = #{myId,jdbcType=INTEGER},
+      friend_id = #{friendId,jdbcType=INTEGER},
+      info = #{info,jdbcType=LONGVARCHAR}
+    where m_f_i_id = #{mFIId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.domain.MyFriendInfo">
+    update my_friend_info
+    set my_id = #{myId,jdbcType=INTEGER},
+      friend_id = #{friendId,jdbcType=INTEGER}
+    where m_f_i_id = #{mFIId,jdbcType=VARCHAR}
+  </update>
+</mapper>
