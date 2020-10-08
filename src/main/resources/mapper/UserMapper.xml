@@ -329,4 +329,10 @@
     from user
     where department = #{department}
   </select>
+  <select id="selectByDepId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from user
+  where department = #{department,jdbcType=INTEGER}
+  </select>
 </mapper>
