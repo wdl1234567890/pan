@@ -46,25 +46,19 @@ public class LoginController {
 	* @return LoginData 
 	 */
 	@RequestMapping("login") 
-	public LoginData LoginUser(String id,String pwd,Integer savetime) {
+	public LoginData LoginUser(String mail,String pwd,Integer savetime) {
 		
 		//设置基本参数
 		UserLog message=new UserLog();
 		User user = new User();
-		Integer intid=-1;
-		if(isNumeric(id)) {
-			intid=Integer.valueOf(id);
-		}
-		System.out.println(isNumeric(id));
 		
-		user.setId(intid);
+		user.setMail(mail);
 		user.setPwd(pwd);
 		if(savetime==null)savetime=defaultTokenValidTime;
 		//生成token
 		String token=UUID.randomUUID().toString().replace("-", "").toUpperCase();
 		//检测登陆是否成功
 		try {
-			if(intid==-1)return LoginData.buildError("账号只能为纯数字");
 			message = loginService.loginUser(user);
 			if(message.getUser()==null) {
 				return LoginData.buildError(message.getMessage());
@@ -80,20 +74,20 @@ public class LoginController {
 			jedis.set(token,jsonRst);
 			jedis.expire(token, savetime);
 			//删除原有的token对象
-			if(jedis.exists(user.getId().toString())) {
+			if(jedis.exists(user.getMail())) {
 				 //如果已经有人登陆，删除正在登陆的token
 				 //使其它人无法继续访问私有页面
-				 String oldToken=jedis.get(user.getId().toString());
+				 String oldToken=jedis.get(user.getMail());
 				 jedis.del(oldToken);
 				 //设置新的可登陆token
-				 jedis.set(user.getId().toString(),token);
-				 jedis.expire(user.getId().toString(), savetime); 
+				 jedis.set(user.getMail(),token);
+				 jedis.expire(user.getMail(), savetime); 
 				 //关闭jedis连接
 				 jedis.close();
 			}else {
 				//不存在已登录的用户，直接设置用户名对象
-				jedis.set(user.getId().toString(),token);
-				jedis.expire(user.getId().toString(), savetime);
+				jedis.set(user.getMail(),token);
+				jedis.expire(user.getMail(), savetime);
 				//关闭
 				jedis.close();
 			}
@@ -114,10 +108,10 @@ public class LoginController {
 	* @return  JsonData
 	 */
 	@RequestMapping("mail") 
-	public JsonData findPwd(String mail, Integer id) {
+	public JsonData findPwd(String mail) {
 		String message;
 		try {
-			message = loginService.pwdToMail(mail, id);
+			message = loginService.pwdToMail(mail);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

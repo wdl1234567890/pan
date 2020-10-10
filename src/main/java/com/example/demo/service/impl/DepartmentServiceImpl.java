@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import com.example.demo.domain.Department;
 import com.example.demo.domain.DepartmentExample;
+import com.example.demo.domain.User;
 import com.example.demo.domain.UserExample;
 import com.example.demo.enums.StatusCode;
 import com.example.demo.exception.PanException;
@@ -25,6 +26,18 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Autowired
     private UserMapper userMapper;
+
+    boolean isRepeat(Department department){
+        DepartmentExample departmentExample = new DepartmentExample();
+        DepartmentExample.Criteria criteria = departmentExample.createCriteria();
+        criteria.andNameEqualTo(department.getName());
+        List<Department> departments = departmentMapper.selectByExample(departmentExample);
+        if (departments.size()!=0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     /**
      * 查询所有部门信息
@@ -53,6 +66,8 @@ public class DepartmentServiceImpl implements DepartmentService {
      */
     @Override
     public Boolean addDepartment(Department department){
+
+        if(isRepeat(department))  throw new PanException(StatusCode.DEPARTMENT_IS_EXISTED.code(),StatusCode.DEPARTMENT_IS_EXISTED.message());
         try {
             int insert = departmentMapper.insert(department);
             if(1!=insert) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
@@ -70,6 +85,11 @@ public class DepartmentServiceImpl implements DepartmentService {
      */
     @Override
     public Boolean changeDepartment(Department department) {
+        DepartmentExample departmentExample = new DepartmentExample();
+        DepartmentExample.Criteria criteria = departmentExample.createCriteria();
+        criteria.andNameEqualTo(department.getName());
+        List<Department> departments = departmentMapper.selectByExample(departmentExample);
+        if(isRepeat(department)&&(departments.get(0).getId()!=department.getId()))  throw new PanException(StatusCode.DEPARTMENT_IS_EXISTED.code(),StatusCode.DEPARTMENT_IS_EXISTED.message());
         try{
             int update = departmentMapper.updateByPrimaryKey(department);
             if(1!=update) throw new PanException(StatusCode.DATABASE_ERROR.code(),StatusCode.DATABASE_ERROR.message());
