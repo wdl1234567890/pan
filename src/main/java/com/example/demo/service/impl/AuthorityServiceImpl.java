@@ -39,23 +39,6 @@ public class AuthorityServiceImpl implements AuthorityService{
 	private boolean batchAddAuthority(List<Authority> authoritys) {
 		//TODO 参数检验
 		
-		//if(user.getLevel() != UserLevel.FILE_ADMIN.value())throw new PanException(StatusCode.NOT_ACCESS.code(), StatusCode.NOT_ACCESS.message());
-		
-		//检测文件夹是否是根目录下的群组文件夹
-		//File file = fileMapper.selectByPrimaryKey(fileId);
-		//if(null == file)throw new PanException(StatusCode.FILE_IS_NOT_EXISTED.code(), StatusCode.FILE_IS_NOT_EXISTED.message());
-		//if(file.getType() != FileType.GROUP_DIR.value() || 0 != file.getParentId())throw new PanException(StatusCode.OPERATION_NOT_ALLOWED.code(), StatusCode.OPERATION_NOT_ALLOWED.message());
-
-		
-		//过滤具有重复部门id的条目，若重复了，则以第一次出现的条目为准
-		//authoritys = ToolUtils.distinctAuthority(authoritys);
-		
-		//为每个权限设置fileId
-//		final int ff = fileId;
-//		authoritys.stream().forEach(auth->{
-//			auth.setFlieId(ff);
-//		});
-		
 		if(0 == authoritys.size())return true;
 		
 		boolean result = authorityMapper.batchInsert(authoritys);

@@ -42,6 +42,9 @@ import com.example.demo.utils.ToolUtils;
 import com.example.demo.vo.GroupDirOrFileInfos;
 import com.obs.services.model.PostSignatureResponse;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 
 
 @Service
@@ -56,6 +59,9 @@ public class FileServiceImpl implements FileService{
 	@Autowired
 	private AuthorityService authorityService;
 	
+	@Autowired
+	private JedisPool jedisPool;
+	
 	@Value("${obs.config.maxLevel}")
 	private Integer maxLevel;
 	
@@ -64,6 +70,9 @@ public class FileServiceImpl implements FileService{
 	
 	@Value("${obs.config.shareUrl}")
 	String shareUrl;
+	
+	@Value("${obs.config.expires}")
+	int expire;
 	
 	
 	/**
@@ -334,7 +343,11 @@ public class FileServiceImpl implements FileService{
 	 * @throws
 	 */
 	private String getShareUrl(File file) {
-		return shareUrl + file.getObjectName();
+		String objName = file.getObjectName();
+		Jedis jedis = jedisPool.getResource();
+		jedis.set(objName, file.getId().toString());
+		jedis.expire(objName, expire);
+		return shareUrl + objName;
 	}
 	
 	
@@ -770,6 +783,11 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public void getShareContent(String key, HttpServletRequest request,
 			HttpServletResponse response) {
+		
+		Jedis jedis = jedisPool.getResource();
+		String keyV = jedis.get(key);
+		
+		if(keyV == null || jedis.ttl(key) < -1)throw new PanException(StatusCode.SHARE_EXPIRE.code(), StatusCode.SHARE_EXPIRE.message());
 		
 		File file = getFileByObjectName(key);
 		

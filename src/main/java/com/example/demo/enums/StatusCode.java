@@ -39,6 +39,8 @@ public enum StatusCode {
 	
 	KEY_INVALID(30010, "分享参数无效"),
 	
+	SHARE_EXPIRE(30011, "分享文件过期或不存在"),
+	
 	
 	PARAM_VALIDATE_FAILED(40000, "参数校验不通过"),
 	
@@ -51,7 +53,7 @@ public enum StatusCode {
 	SERVER_ERROR(80001, "服务端发生错误"),
 	
 	CLIENT_ERROR(80002, "客户端请求发生错误"),
-
+	
 	MAIL_OR_PHONE_IS_EXISTED(90000,"邮箱或电话号码已存在"),
 
 	FILE_FORMAT_ERROR(90001,"文件格式错误"),
